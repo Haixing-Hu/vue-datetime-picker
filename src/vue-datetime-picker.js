@@ -1,0 +1,177 @@
+/**
+ * A datetime picker control.
+ *
+ * @param model
+ *    the model bind to the control, which must be a two way binding variable.
+ * @param type
+ *    the optional type of this datetime control. Available values are
+ *    - "datetime": Indicating that this control is a datetime picker,
+ *    - "date": Indicating that this control is a date picker,
+ *    - "time": Indicating that this control is a time picker.
+ *    Default value is "datetime".
+ * @param language
+ *    the optional language code used to localize the control, which must be
+ *    a valid language code supported by the Eonasdan's bootstrap datetime
+ *    picker plugin. Default value is "en-US".
+ * @param datetimeFormat
+ *    the optional format of the datetime this component should display, which
+ *    must be a valid datetime format of the momentjs plugin. This value only
+ *    works when the "type" property is "datetime". Default value is
+ *    "YYYY-MM-DD HH:mm:ss".
+ * @param dateFormat
+ *    the optional format of the date this component should display, which
+ *    must be a valid datetime format of the momentjs plugin. This value only
+ *    works when the "type" property is "date". Default value is
+ *    "YYYY-MM-DD".
+ * @param timeFormat
+ *    the optional format of the time this component should display, which
+ *    must be a valid datetime format of the momentjs plugin. This value only
+ *    works when the "type" property is "time". Default value is
+ *    "HH:mm:ss".
+ * @param onChange
+ *    the optional event handler triggered when the value of the datetime picker
+ *    was changed. If this parameter is presented and is not null, it must be a
+ *    function which accept one argument: the new date time, as a moment object.
+ */
+module.exports = {
+  replace: true,
+  inherit: false,
+  template: "<div class='input-group date'>" +
+              "<input class='form-control' name='{{name}}' type='text' />" +
+              "<span class='input-group-addon'>" +
+                "<i class='fa fa-fw fa-calendar'></i>" +
+              "</span>" +
+            "</div>",
+  props: {
+    model: {
+      required: true,
+      twoWay: true
+    },
+    type: {
+      type: String,
+      required: false,
+      default: "datetime"
+    },
+    language: {
+      type: String,
+      required: false,
+      default: "en-US"
+    },
+    datetimeFormat: {
+      type: String,
+      required: false,
+      default: "YYYY-MM-DD HH:mm:ss"
+    },
+    dateFormat: {
+      type: String,
+      required: false,
+      default: "YYYY-MM-DD"
+    },
+    timeFormat: {
+      type: String,
+      required: false,
+      default: "HH:mm:ss"
+    },
+    onChange: {
+      required: false,
+      default: null
+    }
+  },
+  beforeCompile: function() {
+    this.isChanging = false;
+    this.control = null;
+  },
+  ready: function() {
+    // console.debug("datetime-picker.ready");
+    var format = null;
+    switch (this.type) {
+    case "date":
+      format = this.dateFormat;
+      break;
+    case "time":
+      format = this.timeFormat;
+      break;
+    case "datetime":
+    default:
+      format = this.datetimeFormat;
+      break;
+    }
+    $(this.$el).datetimepicker({
+      locale: this.getLanguageCode(this.language),
+      format: format,
+      useCurrent: false
+    });
+    this.control = $(this.$el).data("DateTimePicker");
+    this.control.date(this.model);
+    var me = this;
+    $(this.$el).on("dp.change", function (e) {
+      if (! me.isChanging) {
+        me.isChanging = true;
+        me.model = e.date;
+        me.$nextTick(function () {
+          me.isChanging = false;
+          if (me.onChange) {
+            me.onChange(e.date);
+          }
+        });
+      }
+    });
+  },
+  watch: {
+    "model": function(val, oldVal) {
+      if (! this.isChanging) {
+        this.isChanging = true;
+        this.control.date(val);
+        this.isChanging = false;
+      }
+    }
+  },
+  methods: {
+    /**
+     * Gets the language code from the "language-country" locale code.
+     *
+     * The function will strip the language code before the first "-" of a
+     * locale code. For example, pass "en-US" will returns "en". But for some
+     * special locales, the function reserves the locale code. For example,
+     * the "zh-CN" for the simplified Chinese and the "zh-TW" for the
+     * traditional Chinese.
+     *
+     * @param locale
+     *    A locale code.
+     * @return
+     *    the language code of the locale.
+     */
+    getLanguageCode: function(locale) {
+      if (locale === null || locale.length === 0) {
+        return "en";
+      }
+      if (locale.length <= 2) {
+        return locale;
+      } else {
+        switch (locale) {
+          case "ar-MA":
+          case "ar-SA":
+          case "ar-TN":
+          case "de-AT":
+          case "en-AU":
+          case "en-CA":
+          case "en-GB":
+          case "fr-CA":
+          case "hy-AM":
+          case "ms-MY":
+          case "pt-BR":
+          case "sr-CYRL":
+          case "tl-PH":
+          case "tzm-LATN":
+          case "tzm":
+          case "zh-CN":
+          case "zh-TW":
+            return locale.toLowerCase();
+          default:
+            // reserve only the first two letters language code
+            return locale.substr(0, 2);
+        }
+      }
+    }
+  }
+};
