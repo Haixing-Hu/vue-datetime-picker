@@ -1,3 +1,26 @@
+
+/**
+ * The array of names of the tooltip messages of the datetime picker.
+ *
+ * This is a constant and should not be modified.
+ */
+var DATETIME_PICKER_TOOLTIPS = [
+  "today", "clear", "close",
+  "selectMonth", "prevMonth", "nextMonth",
+  "selectYear", "prevYear", "nextYear",
+  "selectDecade", "prevDecade", "nextDecade",
+  "prevCentury", "nextCentury",
+  "pickHour", "incrementHour", "decrementHour",
+  "pickMinute", "incrementMinute", "decrementMinute",
+  "pickSecond", "incrementSecond", "decrementSecond",
+  "togglePeriod", "selectTime"
+];
+
+/**
+ * The default language used by this component.
+ */
+var DEFAULT_LANGUAGE = "en-US";
+
 /**
  * A datetime picker control.
  *
@@ -11,8 +34,11 @@
  *    Default value is "datetime".
  * @param language
  *    the optional language code used to localize the control, which must be
- *    a valid language code supported by the moment.js library. Default value
- *    is "en-US".
+ *    a valid language code supported by the moment.js library. If it is not set,
+ *    and the [vue-i18n](https://github.com/Haixing-Hu/vue-i18n) plugin is used,
+ *    the component will use the language code `$language` provided by the
+ *    [vue-i18n](https://github.com/Haixing-Hu/vue-i18n) plugin; otherwise, the
+ *    component will use the default value "en-US".
  * @param datetimeFormat
  *    the optional format of the datetime this component should display, which
  *    must be a valid datetime format of the moment.js library. This property
@@ -56,7 +82,7 @@ module.exports = {
     language: {
       type: String,
       required: false,
-      default: "en-US"
+      default: ""
     },
     datetimeFormat: {
       type: String,
@@ -84,25 +110,59 @@ module.exports = {
   },
   ready: function() {
     // console.debug("datetime-picker.ready");
-    var format = null;
+    var options = {
+      useCurrent: false,
+      showClear: true,
+      icons: {
+        time: 'fa fa-clock-o',
+        date: 'fa fa-calendar',
+        up: 'fa fa-chevron-up',
+        down: 'fa fa-chevron-down',
+        previous: 'fa fa-chevron-left',
+        next: 'fa fa-chevron-right',
+        today: 'glyphicon glyphicon-screenshot',
+        clear: 'fa fa-trash',
+        close: 'fa fa-times'
+      }
+    };
+    // set the locale
+    if (this.language === null || this.language === "") {
+      if (this.$language) {
+        this.language = this.$language;
+      } else {
+        this.langauge = DEFAULT_LANGUAGE;
+      }
+    }
+    options.locale = this.getLanguageCode(this.language),
+    // set the format
     switch (this.type) {
     case "date":
-      format = this.dateFormat;
+      options.format = this.dateFormat;
       break;
     case "time":
-      format = this.timeFormat;
+      options.format = this.timeFormat;
       break;
     case "datetime":
     default:
-      format = this.datetimeFormat;
+      options.format = this.datetimeFormat;
       break;
     }
-    $(this.$el).datetimepicker({
-      locale: this.getLanguageCode(this.language),
-      format: format,
-      useCurrent: false
-    });
+    // use the vue-i18n plugin for localize the tooltips
+    if (this.$i18n && this.$i18n.datetime_picker) {
+      var messages = this.$i18n.datetime_picker;
+      var tooltips = $.fn.datetimepicker.defaults.tooltips;
+      for (var i = 0; i < DATETIME_PICKER_TOOLTIPS.length; ++i) {
+        var name = DATETIME_PICKER_TOOLTIPS[i];
+        if (messages[name]) {
+          tooltips[name] = messages[name];    // localize
+        }
+      }
+      options.tooltips = tooltips;
+    }
+    // create the control
+    $(this.$el).datetimepicker(options);
     this.control = $(this.$el).data("DateTimePicker");
+    // set the date to the current value of the model
     this.control.date(this.model);
     var me = this;
     $(this.$el).on("dp.change", function (e) {

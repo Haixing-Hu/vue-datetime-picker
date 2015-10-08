@@ -22,6 +22,7 @@ The demo page is [HERE](http://haixing-hu.github.io/vue-datetime-picker/demo.htm
 - [moment](https://github.com/moment/moment/) `>=2.9.0`
 - [moment-timezone](https://github.com/moment/moment-timezone/) `>=0.4.0`
 - [Eonasdan's bootstrap datetime picker](https://github.com/Eonasdan/bootstrap-datetimepicker) `>=4.17.37`
+- [vue-i18n-plugin](https://github.com/Haixing-Hu/vue-i18n) `>=0..3` This is optional.
 
 # Instllation
 
@@ -224,7 +225,12 @@ The default value of this property is `"datetime"`.
 ## `language`
 
 The optional code of language used by the [moment](https://github.com/moment/moment/)
-library. Default value is `"en-US"`.
+library.
+
+If it is not set, and the [vue-i18n](https://github.com/Haixing-Hu/vue-i18n)
+plugin is used, the component will use the language code `$language` provided
+by the [vue-i18n](https://github.com/Haixing-Hu/vue-i18n) plugin; otherwise, the
+component will use the default value `"en-US"`.
 
 The supported languages are exactly the same as the supported languages of the
 [moment](https://github.com/moment/moment/) library. In order to use the
@@ -284,6 +290,51 @@ could be used to call the APIs of the
 For example, `picker.control.minDate(val)` will set the minimum allowed datetime
 of the picker to the specified value, where `picker` is the reference to the
 `vue-datetime-picker` component.
+
+# Localization
+
+This component could use the [vue-i18n](https://github.com/Haixing-Hu/vue-i18n)
+plugin to localize the tooltips of the datetime picker control.
+
+In order to localize this component, the localization files provided to the
+[vue-i18n](https://github.com/Haixing-Hu/vue-i18n) plugin must provide the
+following localization messages:
+
+```json
+{
+  datetime_picker: {
+    today: 'Go to today',
+    clear: 'Clear selection',
+    close: 'Close the picker',
+    selectMonth: 'Select Month',
+    prevMonth: 'Previous Month',
+    nextMonth: 'Next Month',
+    selectYear: 'Select Year',
+    prevYear: 'Previous Year',
+    nextYear: 'Next Year',
+    selectDecade: 'Select Decade',
+    prevDecade: 'Previous Decade',
+    nextDecade: 'Next Decade',
+    prevCentury: 'Previous Century',
+    nextCentury: 'Next Century',
+    pickHour: 'Pick Hour',
+    incrementHour: 'Increment Hour',
+    decrementHour: 'Decrement Hour',
+    pickMinute: 'Pick Minute',
+    incrementMinute: 'Increment Minute',
+    decrementMinute: 'Decrement Minute',
+    pickSecond: 'Pick Second',
+    incrementSecond: 'Increment Second',
+    decrementSecond: 'Decrement Second',
+    togglePeriod: 'Toggle Period',
+    selectTime: 'Select Time'
+  }
+}
+```
+
+If no [vue-i18n](https://github.com/Haixing-Hu/vue-i18n)] is used, or the
+localization file of the plugin does not provide the above localization messages,
+the default English messages will be used.
 
 # Contributing
 

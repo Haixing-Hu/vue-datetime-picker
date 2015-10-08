@@ -10434,7 +10434,8 @@
 	    $(this.$el).datetimepicker({
 	      locale: this.getLanguageCode(this.language),
 	      format: format,
-	      useCurrent: false
+	      useCurrent: false,
+	      showClear: true
 	    });
 	    this.control = $(this.$el).data("DateTimePicker");
 	    this.control.date(this.model);
