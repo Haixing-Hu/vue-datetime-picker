@@ -13,7 +13,10 @@ module.exports = function (config) {
     // list of files / patterns to load in the browser
     files: [
       "./lib/jquery/dist/jquery.min.js",
-      "./lib/select2/dist/js/select2.min.js",
+      "./lib/bootstrap/dist/js/bootstrap.min.js",
+      "./lib/moment/min/moment-with-locales.min.js",
+      "./lib/moment-timezone/builds/moment-timezone-with-data.min.js",
+      "./lib/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js",
       "./test/specs/**/*.js"
     ],
 

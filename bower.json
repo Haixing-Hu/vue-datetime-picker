@@ -1,12 +1,12 @@
 {
   "name": "vue-datetime-picker",
   "description": "A Vue.js component implementing the datetime picker control using the Eonasdan's bootstrap datetime picker plugin.",
-  "version": "0.1.2",
+  "version": "0.1.0",
   "keywords": [
     "Vue.js",
     "component",
-    "select",
-    "jquery.select2"
+    "datetime",
+    "datetime picker"
   ],
   "authors": [
     "Haixing Hu"
@@ -34,5 +34,6 @@
     "eonasdan-bootstrap-datetimepicker": ">=4.17.37"
   },
   "devDependencies": {
+    "vue-i18n-plugin": ">=0.1.3"
   }
 }

@@ -1,5 +1,5 @@
 /*!
- * vue-datetime-picker v0.1.2
+ * vue-datetime-picker v0.1.0
  * (c) 2015 Haixing Hu
  * Released under the MIT License.
  */
@@ -10332,6 +10332,29 @@
 /* 6 */
 /***/ function(module, exports) {
 
+	
+	/**
+	 * The array of names of the tooltip messages of the datetime picker.
+	 *
+	 * This is a constant and should not be modified.
+	 */
+	var DATETIME_PICKER_TOOLTIPS = [
+	  "today", "clear", "close",
+	  "selectMonth", "prevMonth", "nextMonth",
+	  "selectYear", "prevYear", "nextYear",
+	  "selectDecade", "prevDecade", "nextDecade",
+	  "prevCentury", "nextCentury",
+	  "pickHour", "incrementHour", "decrementHour",
+	  "pickMinute", "incrementMinute", "decrementMinute",
+	  "pickSecond", "incrementSecond", "decrementSecond",
+	  "togglePeriod", "selectTime"
+	];
+
+	/**
+	 * The default language used by this component.
+	 */
+	var DEFAULT_LANGUAGE = "en-US";
+
 	/**
 	 * A datetime picker control.
 	 *
@@ -10345,8 +10368,11 @@
 	 *    Default value is "datetime".
 	 * @param language
 	 *    the optional language code used to localize the control, which must be
-	 *    a valid language code supported by the moment.js library. Default value
-	 *    is "en-US".
+	 *    a valid language code supported by the moment.js library. If it is not set,
+	 *    and the [vue-i18n](https://github.com/Haixing-Hu/vue-i18n) plugin is used,
+	 *    the component will use the language code `$language` provided by the
+	 *    [vue-i18n](https://github.com/Haixing-Hu/vue-i18n) plugin; otherwise, the
+	 *    component will use the default value "en-US".
 	 * @param datetimeFormat
 	 *    the optional format of the datetime this component should display, which
 	 *    must be a valid datetime format of the moment.js library. This property
@@ -10390,7 +10416,7 @@
 	    language: {
 	      type: String,
 	      required: false,
-	      default: "en-US"
+	      default: ""
 	    },
 	    datetimeFormat: {
 	      type: String,
@@ -10418,34 +10444,70 @@
 	  },
 	  ready: function() {
 	    // console.debug("datetime-picker.ready");
-	    var format = null;
+	    var options = {
+	      useCurrent: false,
+	      showClear: true,
+	      showClose: false,
+	      icons: {
+	        time: 'fa fa-clock-o',
+	        date: 'fa fa-calendar',
+	        up: 'fa fa-chevron-up',
+	        down: 'fa fa-chevron-down',
+	        previous: 'fa fa-chevron-left',
+	        next: 'fa fa-chevron-right',
+	        today: 'fa fa-dot-circle-o',
+	        clear: 'fa fa-trash',
+	        close: 'fa fa-times'
+	      }
+	    };
+	    // set the locale
+	    var language = this.language;
+	    if (language === null || language === "") {
+	      if (this.$language) {
+	        language = this.$language;
+	      } else {
+	        langauge = DEFAULT_LANGUAGE;
+	      }
+	    }
+	    options.locale = this.getLanguageCode(language);
+	    // set the format
 	    switch (this.type) {
 	    case "date":
-	      format = this.dateFormat;
+	      options.format = this.dateFormat;
 	      break;
 	    case "time":
-	      format = this.timeFormat;
+	      options.format = this.timeFormat;
 	      break;
 	    case "datetime":
 	    default:
-	      format = this.datetimeFormat;
+	      options.format = this.datetimeFormat;
 	      break;
 	    }
-	    $(this.$el).datetimepicker({
-	      locale: this.getLanguageCode(this.language),
-	      format: format,
-	      useCurrent: false,
-	      showClear: true
-	    });
+	    // use the vue-i18n plugin for localize the tooltips
+	    if (this.$i18n && this.$i18n.datetime_picker) {
+	      var messages = this.$i18n.datetime_picker;
+	      var tooltips = $.fn.datetimepicker.defaults.tooltips;
+	      for (var i = 0; i < DATETIME_PICKER_TOOLTIPS.length; ++i) {
+	        var name = DATETIME_PICKER_TOOLTIPS[i];
+	        if (messages[name]) {
+	          tooltips[name] = messages[name];    // localize
+	        }
+	      }
+	      options.tooltips = tooltips;
+	    }
+	    // create the control
+	    $(this.$el).datetimepicker(options);
 	    this.control = $(this.$el).data("DateTimePicker");
+	    // set the date to the current value of the model
 	    this.control.date(this.model);
 	    var me = this;
 	    $(this.$el).on("dp.change", function (e) {
 	      if (! me.isChanging) {
 	        me.isChanging = true;
-	        me.model = e.date;
+	        me.model = me.control.date();
 	        me.$nextTick(function () {
 	          me.isChanging = false;
+	          console.debug("change model to: " + me.model);
 	          if (me.onChange) {
 	            me.onChange(e.date);
 	          }
@@ -10516,7 +10578,7 @@
 /* 7 */
 /***/ function(module, exports) {
 
-	module.exports = "<div class=\"form-horizontal\">\n    <div class=\"form-group\">\n      <label for=\"picker1\" class=\"col-sm-3 control-label\">\n        A default datetime picker:\n      </label>\n      <div class=\"col-sm-5\">\n        <vue-datetime-picker class=\"vue-picker1\" name=\"picker1\"\n                             model=\"{{@ result1}}\">\n        </vue-datetime-picker>\n      </div>\n      <div class=\"col-sm-4\">\n        <p class=\"form-control-static\">\n          Selected Datetime: <span class=\"vue-result1\">{{formatDatetime(result1)}}</span>\n        </p>\n      </div>\n    </div>\n    <div class=\"form-group\">\n      <label for=\"picker2\" class=\"col-sm-3 control-label\">\n        A datetime picker with customized datetime format:\n      </label>\n      <div class=\"col-sm-5\">\n        <vue-datetime-picker class=\"vue-picker2\" name=\"picker2\"\n                             model=\"{{@ result2}}\"\n                             type=\"datetime\"\n                             language=\"en\"\n                             datetime-format=\"LLL\">\n        </vue-datetime-picker>\n      </div>\n      <div class=\"col-sm-4\">\n        <p class=\"form-control-static\">\n          Selected Datetime: <span class=\"vue-result2\">{{formatDatetime(result2)}}</span>\n        </p>\n      </div>\n    </div>\n    <div class=\"form-group\">\n      <label for=\"picker3\" class=\"col-sm-3 control-label\">\n        A date picker with customized date format:\n      </label>\n      <div class=\"col-sm-5\">\n        <vue-datetime-picker class=\"vue-picker3\" name=\"picker3\"\n                             model=\"{{@ result3}}\"\n                             type=\"date\"\n                             language=\"en-US\"\n                             date-format=\"L\">\n        </vue-datetime-picker>\n      </div>\n      <div class=\"col-sm-4\">\n        <p class=\"form-control-static\">\n          Selected Date: <span class=\"vue-result3\">{{formatDate(result3)}}</span>\n        </p>\n      </div>\n    </div>\n    <div class=\"form-group\">\n      <label for=\"picker4\" class=\"col-sm-3 control-label\">\n        A time picker with customized time format:\n      </label>\n      <div class=\"col-sm-5\">\n        <vue-datetime-picker class=\"vue-picker4\" name=\"picker4\"\n                             model=\"{{@ result4}}\"\n                             type=\"time\"\n                             language=\"zh-CN\"\n                             time-format=\"LT\">\n        </vue-datetime-picker>\n      </div>\n      <div class=\"col-sm-4\">\n        <p class=\"form-control-static\">\n          Selected Time: <span class=\"vue-result4\">{{formatTime(result4)}}</span>\n        </p>\n      </div>\n    </div>\n    <div class=\"form-group\">\n      <p class=\"form-control-static col-sm-12\">\n        Demonstration of the range of datetime. Note how the minimum/maximum\n        selectable datetime of the start/end datetime picker was changed\n        according to the selection of another picker.\n      </p>\n    </div>\n    <div class=\"form-group\">\n      <label for=\"start-picker\" class=\"col-sm-3 control-label\">\n        Start Datetime:\n      </label>\n      <div class=\"col-sm-3\">\n        <vue-datetime-picker class=\"vue-start-picker\" name=\"start-picker\"\n                             v-ref=\"startPicker\"\n                             model=\"{{@ startDatetime}}\"\n                             on-change=\"{{onStartDatetimeChanged}}\">\n        </vue-datetime-picker>\n      </div>\n      <label for=\"end-picker\" class=\"col-sm-3 control-label\">\n        End Datetime:\n      </label>\n      <div class=\"col-sm-3\">\n        <vue-datetime-picker class=\"vue-end-picker\" name=\"end-picker\"\n                             v-ref=\"endPicker\"\n                             model=\"{{@ endDatetime}}\"\n                             on-change=\"{{onEndDatetimeChanged}}\">\n        </vue-datetime-picker>\n      </div>\n    </div>\n  </div>"
+	module.exports = "<div class=\"form-horizontal\">\n    <div class=\"form-group\">\n      <label for=\"picker1\" class=\"col-sm-3 control-label\">\n        A default datetime picker:\n      </label>\n      <div class=\"col-sm-5\">\n        <vue-datetime-picker v-ref=\"picker1\" name=\"picker1\"\n                             model=\"{{@ result1}}\">\n        </vue-datetime-picker>\n      </div>\n      <div class=\"col-sm-4\">\n        <p class=\"form-control-static\">\n          Selected Datetime: <span class=\"vue-result1\">{{formatDatetime(result1)}}</span>\n        </p>\n      </div>\n    </div>\n    <div class=\"form-group\">\n      <label for=\"picker2\" class=\"col-sm-3 control-label\">\n        A datetime picker with customized datetime format:\n      </label>\n      <div class=\"col-sm-5\">\n        <vue-datetime-picker v-ref=\"picker2\" name=\"picker2\"\n                             model=\"{{@ result2}}\"\n                             type=\"datetime\"\n                             language=\"en\"\n                             datetime-format=\"LLL\">\n        </vue-datetime-picker>\n      </div>\n      <div class=\"col-sm-4\">\n        <p class=\"form-control-static\">\n          Selected Datetime: <span class=\"vue-result2\">{{formatDatetime(result2)}}</span>\n        </p>\n      </div>\n    </div>\n    <div class=\"form-group\">\n      <label for=\"picker3\" class=\"col-sm-3 control-label\">\n        A date picker with customized date format:\n      </label>\n      <div class=\"col-sm-5\">\n        <vue-datetime-picker v-ref=\"picker3\" name=\"picker3\"\n                             model=\"{{@ result3}}\"\n                             type=\"date\"\n                             language=\"en-US\"\n                             date-format=\"L\">\n        </vue-datetime-picker>\n      </div>\n      <div class=\"col-sm-4\">\n        <p class=\"form-control-static\">\n          Selected Date: <span class=\"vue-result3\">{{formatDate(result3)}}</span>\n        </p>\n      </div>\n    </div>\n    <div class=\"form-group\">\n      <label for=\"picker4\" class=\"col-sm-3 control-label\">\n        A time picker with customized time format:\n      </label>\n      <div class=\"col-sm-5\">\n        <vue-datetime-picker v-ref=\"picker4\" name=\"picker4\"\n                             model=\"{{@ result4}}\"\n                             type=\"time\"\n                             language=\"zh-CN\"\n                             time-format=\"LT\">\n        </vue-datetime-picker>\n      </div>\n      <div class=\"col-sm-4\">\n        <p class=\"form-control-static\">\n          Selected Time: <span class=\"vue-result4\">{{formatTime(result4)}}</span>\n        </p>\n      </div>\n    </div>\n    <div class=\"form-group\">\n      <p class=\"form-control-static col-sm-12\">\n        Demonstration of the range of datetime. Note how the minimum/maximum\n        selectable datetime of the start/end datetime picker was changed\n        according to the selection of another picker.\n      </p>\n    </div>\n    <div class=\"form-group\">\n      <label for=\"start-picker\" class=\"col-sm-3 control-label\">\n        Start Datetime:\n      </label>\n      <div class=\"col-sm-3\">\n        <vue-datetime-picker v-ref=\"startPicker\" name=\"start-picker\"\n                             model=\"{{@ startDatetime}}\"\n                             on-change=\"{{onStartDatetimeChanged}}\">\n        </vue-datetime-picker>\n      </div>\n      <label for=\"end-picker\" class=\"col-sm-3 control-label\">\n        End Datetime:\n      </label>\n      <div class=\"col-sm-3\">\n        <vue-datetime-picker v-ref=\"endPicker\" name=\"end-picker\"\n                             model=\"{{@ endDatetime}}\"\n                             on-change=\"{{onEndDatetimeChanged}}\">\n        </vue-datetime-picker>\n      </div>\n    </div>\n  </div>"
 
 /***/ }
 /******/ ]);

@@ -113,6 +113,7 @@ module.exports = {
     var options = {
       useCurrent: false,
       showClear: true,
+      showClose: false,
       icons: {
         time: 'fa fa-clock-o',
         date: 'fa fa-calendar',
@@ -120,20 +121,21 @@ module.exports = {
         down: 'fa fa-chevron-down',
         previous: 'fa fa-chevron-left',
         next: 'fa fa-chevron-right',
-        today: 'glyphicon glyphicon-screenshot',
+        today: 'fa fa-dot-circle-o',
         clear: 'fa fa-trash',
         close: 'fa fa-times'
       }
     };
     // set the locale
-    if (this.language === null || this.language === "") {
+    var language = this.language;
+    if (language === null || language === "") {
       if (this.$language) {
-        this.language = this.$language;
+        language = this.$language;
       } else {
-        this.langauge = DEFAULT_LANGUAGE;
+        langauge = DEFAULT_LANGUAGE;
       }
     }
-    options.locale = this.getLanguageCode(this.language),
+    options.locale = this.getLanguageCode(language);
     // set the format
     switch (this.type) {
     case "date":
@@ -165,14 +167,14 @@ module.exports = {
     // set the date to the current value of the model
     this.control.date(this.model);
     var me = this;
-    $(this.$el).on("dp.change", function (e) {
+    $(this.$el).on("dp.change", function () {
       if (! me.isChanging) {
         me.isChanging = true;
-        me.model = e.date;
+        me.model = me.control.date();
         me.$nextTick(function () {
           me.isChanging = false;
           if (me.onChange) {
-            me.onChange(e.date);
+            me.onChange(me.model);
           }
         });
       }
@@ -184,6 +186,9 @@ module.exports = {
         this.isChanging = true;
         this.control.date(val);
         this.isChanging = false;
+        if (this.onChange) {
+          this.onChange(val);
+        }
       }
     }
   },
