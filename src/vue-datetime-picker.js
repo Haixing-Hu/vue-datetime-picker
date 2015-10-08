@@ -215,6 +215,8 @@ module.exports = {
         return locale;
       } else {
         switch (locale) {
+          case "zh-CN":
+          case "zh-TW":
           case "ar-MA":
           case "ar-SA":
           case "ar-TN":
@@ -230,8 +232,6 @@ module.exports = {
           case "tl-PH":
           case "tzm-LATN":
           case "tzm":
-          case "zh-CN":
-          case "zh-TW":
             return locale.toLowerCase();
           default:
             // reserve only the first two letters language code

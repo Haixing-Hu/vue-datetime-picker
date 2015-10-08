@@ -23,7 +23,7 @@
         <vue-datetime-picker v-ref="picker2" name="picker2"
                              model="{{@ result2}}"
                              type="datetime"
-                             language="en"
+                             language="en-US"
                              datetime-format="LLL">
         </vue-datetime-picker>
       </div>
@@ -41,7 +41,7 @@
         <vue-datetime-picker v-ref="picker3" name="picker3"
                              model="{{@ result3}}"
                              type="date"
-                             language="en-GB"
+                             language="en"
                              date-format="L">
         </vue-datetime-picker>
       </div>

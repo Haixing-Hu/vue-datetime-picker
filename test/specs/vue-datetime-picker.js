@@ -1,8 +1,12 @@
 var assert = require("assert");
 var Vue = require("vue");
 var Demo = require("../../demo/demo.vue");
+var DatetimePicker = require("../../src/vue-datetime-picker.js");
+var VueI18n = require("../../lib/vue-i18n-plugin/src/vue-i18n.js");
 
-var getVM = function(rootId, initResult1, initResult2, initResult3, initResult4, initStartDatetime, initEndDatetime) {
+function getDemoVM (rootId, initResult1, initResult2,
+                    initResult3, initResult4,
+                    initStartDatetime, initEndDatetime) {
   return Vue.extend({
     template: "<div><demo v-ref='demo'></demo></div>",
     el: function() {
@@ -25,7 +29,33 @@ var getVM = function(rootId, initResult1, initResult2, initResult3, initResult4,
       };
     }
   });
-};
+}
+
+function getI18nVM(rootId, language) {
+  return Vue.extend({
+    template: "<div>" +
+              "  <vue-datetime-picker v-ref='picker' model='{{@ result}}'>" +
+              "  </vue-datetime-picker>" +
+              "</div>",
+    components: {
+      "vue-datetime-picker": DatetimePicker
+    },
+    el: function() {
+      var el = document.createElement("div");
+      el.id = rootId;
+      document.body.appendChild(el);
+      return el;
+    },
+    data: function() {
+      return {
+        result: null
+      };
+    },
+    created: function() {
+      this.$setLanguage(language);
+    }
+  });
+}
 
 describe("vue-datetime-picker", function() {
   describe("static render", function() {
@@ -35,7 +65,7 @@ describe("vue-datetime-picker", function() {
     var initResult4 = moment("6:21:12", "HH:mm:ss");
     var initStartDatetime = moment("2015-01-22 13:24:55", "YYYY-MM-DD HH:mm:ss");
     var initEndDatetime = null;
-    var VM = getVM("static-render", initResult1, initResult2, initResult3,
+    var VM = getDemoVM("static-render", initResult1, initResult2, initResult3,
       initResult4, initStartDatetime, initEndDatetime);
     var vm = new VM();
     it("picker1", function(done) {
@@ -63,7 +93,7 @@ describe("vue-datetime-picker", function() {
         var picker3 = demo.$.picker3.control;
         assert.equal(picker3.date().format("YYYY-MM-DD"),
                      initResult3.format("YYYY-MM-DD"));
-        assert.equal(picker3.locale(), "en-gb");
+        assert.equal(picker3.locale(), "en");
         done();
       });
     });
@@ -105,7 +135,7 @@ describe("vue-datetime-picker", function() {
     var initResult4 = moment("6:21:12", "HH:mm:ss");
     var initStartDatetime = moment("2015-01-22 13:24:55", "YYYY-MM-DD HH:mm:ss");
     var initEndDatetime = null;
-    var VM = getVM("static-render", initResult1, initResult2, initResult3,
+    var VM = getDemoVM("change-model", initResult1, initResult2, initResult3,
       initResult4, initStartDatetime, initEndDatetime);
     var vm = new VM();
     it("picker1", function(done) {
@@ -183,7 +213,7 @@ describe("vue-datetime-picker", function() {
     var initResult4 = moment("6:21:12", "HH:mm:ss");
     var initStartDatetime = moment("2015-01-22 13:24:55", "YYYY-MM-DD HH:mm:ss");
     var initEndDatetime = null;
-    var VM = getVM("static-render", initResult1, initResult2, initResult3,
+    var VM = getDemoVM("change-selection", initResult1, initResult2, initResult3,
       initResult4, initStartDatetime, initEndDatetime);
     var vm = new VM();
     it("picker1", function(done) {
@@ -261,7 +291,7 @@ describe("vue-datetime-picker", function() {
     var initResult4 = moment("6:21:12", "HH:mm:ss");
     var initStartDatetime = moment("2015-01-22 13:24:55", "YYYY-MM-DD HH:mm:ss");
     var initEndDatetime = null;
-    var VM = getVM("static-render", initResult1, initResult2, initResult3,
+    var VM = getDemoVM("customized-onchange", initResult1, initResult2, initResult3,
       initResult4, initStartDatetime, initEndDatetime);
     var vm = new VM();
     it("start-picker: change model", function(done) {
@@ -319,6 +349,32 @@ describe("vue-datetime-picker", function() {
   });
 
   describe("test the i18n plugin", function() {
-
+    before(function() {
+      Vue.use(VueI18n, {
+        baseUrl: "/base/test/specs/i18n"
+      });
+    });
+    it("test language", function(done) {
+      var VM = getI18nVM("test-i18n", "zh-CN");
+      var vm = new VM();
+      vm.$nextTick(function() {
+        var picker = vm.$.picker.control;
+        assert.equal(picker.locale(), "zh-cn");
+        done();
+      });
+    });
+    it("test tooltips", function(done) {
+      var VM = getI18nVM("test-i18n", "zh-CN");
+      var vm = new VM();
+      vm.$nextTick(function() {
+        var picker = vm.$.picker.control;
+        var tooltips = picker.tooltips();
+        assert.equal(tooltips.today, "跳转至今日");
+        assert.equal(tooltips.clear, "清除选择");
+        assert.equal(tooltips.close, "关闭选择器");
+        assert.equal(tooltips.selectTime, "Select Time");
+        done();
+      });
+    });
   });
 });

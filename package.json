@@ -50,6 +50,7 @@
     "html-loader": "^0.3.0",
     "style-loader": "^0.12.3",
     "raw-loader": "^0.5.1",
+    "vue-html-loader": "^1.0.0",
     "vue-loader": "^3.0.4",
     "mocha": "^2.0.1",
     "karma": "^0.13.10",

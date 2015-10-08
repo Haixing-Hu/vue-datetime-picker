@@ -17,7 +17,13 @@ module.exports = function (config) {
       "./lib/moment/min/moment-with-locales.min.js",
       "./lib/moment-timezone/builds/moment-timezone-with-data.min.js",
       "./lib/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js",
-      "./test/specs/**/*.js"
+      "./test/specs/*.js",
+      {
+        pattern: "./test/specs/i18n/*.json",
+        watched: false,
+        included: false,
+        served: true
+      }
     ],
 
     // list of files to exclude
@@ -29,7 +35,7 @@ module.exports = function (config) {
     preprocessors: {
       "./test/**/*.js": ['webpack', 'sourcemap'],
       "./demo/**/*.vue": ['webpack', 'sourcemap'],
-      "./src/**/*.js": ['webpack', 'sourcemap']
+      "./src/**/*.js": ['webpack', 'sourcemap', 'coverage']
     },
 
     webpack: {
@@ -40,7 +46,7 @@ module.exports = function (config) {
         ],
         postLoaders: [{
           test: /\.js$/,
-          exclude: /test|node_modules/,
+          exclude: /test|node_modules|lib/,
           loader: 'istanbul-instrumenter'
         }]
       }
