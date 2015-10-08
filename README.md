@@ -16,8 +16,12 @@ The demo page is [HERE](http://haixing-hu.github.io/vue-datetime-picker/demo.htm
 
 # Requirements
 
-- [Vue.js](https://github.com/yyx990803/vue) `^0.12.0`
-- [Eonasdan's bootstrap datetime picker plugin](https://github.com/Eonasdan/bootstrap-datetimepicker) `^4.17.37`
+- [Vue.js](https://github.com/yyx990803/vue) `>=0.12.0`
+- [bootstrap](https://github.com/twbs/bootstrap) `>=3.3.5`
+- [font-awesome](https://github.com/FortAwesome/Font-Awesome) `>=4.2.0`
+- [moment](https://github.com/moment/moment/) `>=2.9.0`
+- [moment-timezone](https://github.com/moment/moment-timezone/) `>=0.4.0`
+- [Eonasdan's bootstrap datetime picker](https://github.com/Eonasdan/bootstrap-datetimepicker) `>=4.17.37`
 
 # Instllation
 
@@ -38,12 +42,104 @@ $ bower install vue-datetime-picker
 The HTML snippets are as follows:
 
 ```html
-<div class="container" id="app">
-  <vue-datetime-picker model="{{@ text}}"></vue-datetime-picker>
-  <div style="margin-top:40px">
-    <div> The HTML contents are as follows:</div>
-    <hr>
-    <div >{{{text}}}</div>
+<div class="form-horizontal">
+  <div class="form-group">
+    <label for="picker1" class="col-sm-3 control-label">
+      A default datetime picker:
+    </label>
+    <div class="col-sm-5">
+      <vue-datetime-picker class="vue-picker1" name="picker1"
+                           model="{{@ result1}}">
+      </vue-datetime-picker>
+    </div>
+    <div class="col-sm-4">
+      <p class="form-control-static">
+        Selected Datetime: <span class="vue-result1">{{formatDatetime(result1)}}</span>
+      </p>
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="picker2" class="col-sm-3 control-label">
+      A datetime picker with customized datetime format:
+    </label>
+    <div class="col-sm-5">
+      <vue-datetime-picker class="vue-picker2" name="picker2"
+                           model="{{@ result2}}"
+                           type="datetime"
+                           language="en"
+                           datetime-format="LLL">
+      </vue-datetime-picker>
+    </div>
+    <div class="col-sm-4">
+      <p class="form-control-static">
+        Selected Datetime: <span class="vue-result2">{{formatDatetime(result2)}}</span>
+      </p>
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="picker3" class="col-sm-3 control-label">
+      A date picker with customized date format:
+    </label>
+    <div class="col-sm-5">
+      <vue-datetime-picker class="vue-picker3" name="picker3"
+                           model="{{@ result3}}"
+                           type="date"
+                           language="en-US"
+                           date-format="L">
+      </vue-datetime-picker>
+    </div>
+    <div class="col-sm-4">
+      <p class="form-control-static">
+        Selected Date: <span class="vue-result3">{{formatDate(result3)}}</span>
+      </p>
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="picker4" class="col-sm-3 control-label">
+      A time picker with customized time format:
+    </label>
+    <div class="col-sm-5">
+      <vue-datetime-picker class="vue-picker4" name="picker4"
+                           model="{{@ result4}}"
+                           type="time"
+                           language="zh-CN"
+                           time-format="LT">
+      </vue-datetime-picker>
+    </div>
+    <div class="col-sm-4">
+      <p class="form-control-static">
+        Selected Time: <span class="vue-result4">{{formatTime(result4)}}</span>
+      </p>
+    </div>
+  </div>
+  <div class="form-group">
+    <p class="form-control-static col-sm-12">
+      Demonstration of the range of datetime. Note how the minimum/maximum
+      selectable datetime of the start/end datetime picker was changed
+      according to the selection of another picker.
+    </p>
+  </div>
+  <div class="form-group">
+    <label for="start-picker" class="col-sm-3 control-label">
+      Start Datetime:
+    </label>
+    <div class="col-sm-3">
+      <vue-datetime-picker class="vue-start-picker" name="start-picker"
+                           v-ref="startPicker"
+                           model="{{@ startDatetime}}"
+                           on-change="{{onStartDatetimeChanged}}">
+      </vue-datetime-picker>
+    </div>
+    <label for="end-picker" class="col-sm-3 control-label">
+      End Datetime:
+    </label>
+    <div class="col-sm-3">
+      <vue-datetime-picker class="vue-end-picker" name="end-picker"
+                           v-ref="endPicker"
+                           model="{{@ endDatetime}}"
+                           on-change="{{onEndDatetimeChanged}}">
+      </vue-datetime-picker>
+    </div>
   </div>
 </div>
 ```
@@ -59,7 +155,42 @@ var vm = new Vue({
     "vue-datetime-picker": require("vue-datetime-picker")
   },
   data: {
-    text: "Hello World!"
+    result1: null,
+    result2: null,
+    result3: null,
+    startDatetime: moment(),
+    endDatetime: null
+  },
+  methods: {
+    formatDatetime: function(datetime) {
+      if (datetime === null) {
+        return "[null]";
+      } else {
+        return datetime.format("YYYY-MM-DD HH:mm:ss");
+      }
+    },
+    formatDate: function(date) {
+      if (date === null) {
+        return "[null]";
+      } else {
+        return date.format("YYYY-MM-DD");
+      }
+    },
+    formatTime: function(time) {
+      if (time === null) {
+        return "[null]";
+      } else {
+        return time.format("HH:mm:ss");
+      }
+    },
+    onStartDatetimeChanged: function(newStart) {
+      var endPicker = this.$.endPicker.control;
+      endPicker.minDate(newStart);
+    },
+    onEndDatetimeChanged: function(newEnd) {
+      var startPicker = this.$.startPicker.control;
+      startPicker.maxDate(newEnd);
+    }
   }
 });
 ```
@@ -70,22 +201,89 @@ var vm = new Vue({
 
 The model bind to the control, which must be a two way binding variable.
 
+Note that the value of the model must be either a `null` value, or a
+[moment](https://github.com/moment/moment/) object. If the model is set to
+`null`, the input box of the datetime picker control will set to empty,
+indicating no datetime was selected; also, if the input box of the datetime
+picker control is set to empty (that is, the user delete the text in the input
+box of the datetime picker control), the value of the model will be set to
+`null` instead of an empty string; if the user does select a datetime, the
+value of the model will be set to the [moment](https://github.com/moment/moment/)
+object representing the date, without any timezone information.
+
+## `type`
+
+The optional type of the datetime picker control. Available values are
+
+- `"datetime"`: Indicating that the control is a datetime picker,
+- `"date"`: Indicating that the control is a date picker (without time picker),
+- `"time"`: Indicating that the control is a time picker (without date picker).
+
+The default value of this property is `"datetime"`.
+
 ## `language`
 
-The optional code of language used by the summernote plugin. Default value is `'en-US'`.
-Note that the language code passed to this property must be a language code together
-with a country code. This limitation is due to names of the i18n localizaiton files
-of the summernote plugin.
+The optional code of language used by the [moment](https://github.com/moment/moment/)
+library. Default value is `"en-US"`.
+
+The supported languages are exactly the same as the supported languages of the
+[moment](https://github.com/moment/moment/) library. In order to use the
+supported language, you must also include the corresponding i18n js file of
+the [moment](https://github.com/moment/moment/) library in your HTML file.
+A convenient way is to include the `moment-with-locales.min.js`.
+
+Note that the language code passed to this property could be a locale code
+consists of a language code and a country code, e.g., `"en-US"`. The component
+will automatically convert the locale code to the language code supported by
+the [moment](https://github.com/moment/moment/) library. Since some languages
+have different variants in different country or region, e.g., `"zh-CN"` for the
+simplified Chinese and `"zh-TW"` for the traditional Chinese, it's recommended
+to use the locale code in the form of `"[language]-[country]"`.
+
+## `datetimeFormat`
+
+The optional format of the datetime this component should display, which
+must be a valid datetime format of the [moment](https://github.com/moment/moment/)
+library.
+
+This property only works when the `type` property is set to `"datetime"`. Default
+value of this property is `"YYYY-MM-DD HH:mm:ss"`.
+
+## `dateFormat`
+
+The optional format of the date this component should display, which
+must be a valid date format of the [moment](https://github.com/moment/moment/)
+library.
+
+This property only works when the `type` property is set to `"date"`. Default
+value of this property is `"YYYY-MM-DD"`.
+
+## `timeFormat`
+
+The optional format of the time this component should display, which
+must be a valid time format of the [moment](https://github.com/moment/moment/)
+library.
+
+This property only works when the `type` property is set to `"time"`. Default
+value of this property is `"HH:mm:ss"`.
+
+## `onChange`
+
+The optional event handler triggered when the value of the datetime picker
+was changed. If this parameter is presented and is not `null`, it must be a
+function which accept one argument: the new date time selected by the picker,
+which is a [moment](https://github.com/moment/moment/) object.
 
 # API
 
 ## `control`
 
-This property is a reference to the JQuery selection of the base texearea
-control. It could be used to call the APIs of summernote. For example,
-`editor.control.code(val)` will set the HTML content of the editor to the
-specified value, where `editor` is the reference to the `vue-datetime-picker`
-component.
+This property is a reference to the JQuery selection of datetime control. It
+could be used to call the APIs of the
+[Eonasdan's bootstrap datetime picker](https://github.com/Eonasdan/bootstrap-datetimepicker).
+For example, `picker.control.minDate(val)` will set the minimum allowed datetime
+of the picker to the specified value, where `picker` is the reference to the
+`vue-datetime-picker` component.
 
 # Contributing
 
