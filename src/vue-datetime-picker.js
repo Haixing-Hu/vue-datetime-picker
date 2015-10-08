@@ -4,34 +4,35 @@
  * @param model
  *    the model bind to the control, which must be a two way binding variable.
  * @param type
- *    the optional type of this datetime control. Available values are
+ *    the optional type of this datetime picker control. Available values are
  *    - "datetime": Indicating that this control is a datetime picker,
  *    - "date": Indicating that this control is a date picker,
  *    - "time": Indicating that this control is a time picker.
  *    Default value is "datetime".
  * @param language
  *    the optional language code used to localize the control, which must be
- *    a valid language code supported by the Eonasdan's bootstrap datetime
- *    picker plugin. Default value is "en-US".
+ *    a valid language code supported by the moment.js library. Default value
+ *    is "en-US".
  * @param datetimeFormat
  *    the optional format of the datetime this component should display, which
- *    must be a valid datetime format of the momentjs plugin. This value only
- *    works when the "type" property is "datetime". Default value is
+ *    must be a valid datetime format of the moment.js library. This property
+ *    only works when the "type" property is "datetime". Default value is
  *    "YYYY-MM-DD HH:mm:ss".
  * @param dateFormat
  *    the optional format of the date this component should display, which
- *    must be a valid datetime format of the momentjs plugin. This value only
- *    works when the "type" property is "date". Default value is
+ *    must be a valid datetime format of the moment.js library. This property
+ *    only works when the "type" property is "date". Default value is
  *    "YYYY-MM-DD".
  * @param timeFormat
  *    the optional format of the time this component should display, which
- *    must be a valid datetime format of the momentjs plugin. This value only
- *    works when the "type" property is "time". Default value is
+ *    must be a valid datetime format of the moment.js library. This property
+ *    only works when the "type" property is "time". Default value is
  *    "HH:mm:ss".
  * @param onChange
  *    the optional event handler triggered when the value of the datetime picker
  *    was changed. If this parameter is presented and is not null, it must be a
- *    function which accept one argument: the new date time, as a moment object.
+ *    function which accept one argument: the new date time, which is a moment
+ *    object.
  */
 module.exports = {
   replace: true,

@@ -61,7 +61,9 @@
 	      result1: null,
 	      result2: null,
 	      result3: null,
-	      result4: null
+	      result4: null,
+	      startDatetime: moment(),
+	      endDatetime: null
 	    };
 	  }
 	});
@@ -10315,6 +10317,14 @@
 	        return time.format("HH:mm:ss");
 	      }
 	    },
+	    onStartDatetimeChanged: function(newStart) {
+	      var endPicker = this.$.endPicker.control;
+	      endPicker.minDate(newStart);
+	    },
+	    onEndDatetimeChanged: function(newEnd) {
+	      var startPicker = this.$.startPicker.control;
+	      startPicker.maxDate(newEnd);
+	    }
 	  }
 	};
 
@@ -10328,34 +10338,35 @@
 	 * @param model
 	 *    the model bind to the control, which must be a two way binding variable.
 	 * @param type
-	 *    the optional type of this datetime control. Available values are
+	 *    the optional type of this datetime picker control. Available values are
 	 *    - "datetime": Indicating that this control is a datetime picker,
 	 *    - "date": Indicating that this control is a date picker,
 	 *    - "time": Indicating that this control is a time picker.
 	 *    Default value is "datetime".
 	 * @param language
 	 *    the optional language code used to localize the control, which must be
-	 *    a valid language code supported by the Eonasdan's bootstrap datetime
-	 *    picker plugin. Default value is "en-US".
+	 *    a valid language code supported by the moment.js library. Default value
+	 *    is "en-US".
 	 * @param datetimeFormat
 	 *    the optional format of the datetime this component should display, which
-	 *    must be a valid datetime format of the momentjs plugin. This value only
-	 *    works when the "type" property is "datetime". Default value is
+	 *    must be a valid datetime format of the moment.js library. This property
+	 *    only works when the "type" property is "datetime". Default value is
 	 *    "YYYY-MM-DD HH:mm:ss".
 	 * @param dateFormat
 	 *    the optional format of the date this component should display, which
-	 *    must be a valid datetime format of the momentjs plugin. This value only
-	 *    works when the "type" property is "date". Default value is
+	 *    must be a valid datetime format of the moment.js library. This property
+	 *    only works when the "type" property is "date". Default value is
 	 *    "YYYY-MM-DD".
 	 * @param timeFormat
 	 *    the optional format of the time this component should display, which
-	 *    must be a valid datetime format of the momentjs plugin. This value only
-	 *    works when the "type" property is "time". Default value is
+	 *    must be a valid datetime format of the moment.js library. This property
+	 *    only works when the "type" property is "time". Default value is
 	 *    "HH:mm:ss".
 	 * @param onChange
 	 *    the optional event handler triggered when the value of the datetime picker
 	 *    was changed. If this parameter is presented and is not null, it must be a
-	 *    function which accept one argument: the new date time, as a moment object.
+	 *    function which accept one argument: the new date time, which is a moment
+	 *    object.
 	 */
 	module.exports = {
 	  replace: true,
@@ -10487,6 +10498,7 @@
 	          case "sr-CYRL":
 	          case "tl-PH":
 	          case "tzm-LATN":
+	          case "tzm":
 	          case "zh-CN":
 	          case "zh-TW":
 	            return locale.toLowerCase();
@@ -10503,7 +10515,7 @@
 /* 7 */
 /***/ function(module, exports) {
 
-	module.exports = "<div class=\"form-horizontal\">\n    <div class=\"form-group\">\n      <label for=\"picker1\" class=\"col-sm-3 control-label\">\n        A default datetime picker:\n      </label>\n      <div class=\"col-sm-5\">\n        <vue-datetime-picker class=\"vue-picker1\" name=\"picker1\"\n                             model=\"{{@ result1}}\">\n        </vue-datetime-picker>\n      </div>\n      <div class=\"col-sm-4\">\n        <p class=\"form-control-static\">\n          Selected Datetime: <span class=\"vue-result1\">{{formatDatetime(result1)}}</span>\n        </p>\n      </div>\n    </div>\n    <div class=\"form-group\">\n      <label for=\"picker2\" class=\"col-sm-3 control-label\">\n        A datetime picker with customized datetime format:\n      </label>\n      <div class=\"col-sm-5\">\n        <vue-datetime-picker class=\"vue-picker2\" name=\"picker2\"\n                             model=\"{{@ result2}}\"\n                             type=\"datetime\"\n                             language=\"en\"\n                             datetime-format=\"LLL\">\n        </vue-datetime-picker>\n      </div>\n      <div class=\"col-sm-4\">\n        <p class=\"form-control-static\">\n          Selected Datetime: <span class=\"vue-result2\">{{formatDatetime(result2)}}</span>\n        </p>\n      </div>\n    </div>\n    <div class=\"form-group\">\n      <label for=\"picker3\" class=\"col-sm-3 control-label\">\n        A date picker with customized date format:\n      </label>\n      <div class=\"col-sm-5\">\n        <vue-datetime-picker class=\"vue-picker3\" name=\"picker3\"\n                             model=\"{{@ result3}}\"\n                             type=\"date\"\n                             language=\"en-US\"\n                             date-format=\"L\">\n        </vue-datetime-picker>\n      </div>\n      <div class=\"col-sm-4\">\n        <p class=\"form-control-static\">\n          Selected Date: <span class=\"vue-result3\">{{formatDate(result3)}}</span>\n        </p>\n      </div>\n    </div>\n    <div class=\"form-group\">\n      <label for=\"picker4\" class=\"col-sm-3 control-label\">\n        A time picker with customized time format:\n      </label>\n      <div class=\"col-sm-5\">\n        <vue-datetime-picker class=\"vue-picker4\" name=\"picker4\"\n                             model=\"{{@ result4}}\"\n                             type=\"time\"\n                             language=\"zh-CN\"\n                             time-format=\"LT\">\n        </vue-datetime-picker>\n      </div>\n      <div class=\"col-sm-4\">\n        <p class=\"form-control-static\">\n          Selected Time: <span class=\"vue-result4\">{{formatTime(result4)}}</span>\n        </p>\n      </div>\n    </div>\n  </div>"
+	module.exports = "<div class=\"form-horizontal\">\n    <div class=\"form-group\">\n      <label for=\"picker1\" class=\"col-sm-3 control-label\">\n        A default datetime picker:\n      </label>\n      <div class=\"col-sm-5\">\n        <vue-datetime-picker class=\"vue-picker1\" name=\"picker1\"\n                             model=\"{{@ result1}}\">\n        </vue-datetime-picker>\n      </div>\n      <div class=\"col-sm-4\">\n        <p class=\"form-control-static\">\n          Selected Datetime: <span class=\"vue-result1\">{{formatDatetime(result1)}}</span>\n        </p>\n      </div>\n    </div>\n    <div class=\"form-group\">\n      <label for=\"picker2\" class=\"col-sm-3 control-label\">\n        A datetime picker with customized datetime format:\n      </label>\n      <div class=\"col-sm-5\">\n        <vue-datetime-picker class=\"vue-picker2\" name=\"picker2\"\n                             model=\"{{@ result2}}\"\n                             type=\"datetime\"\n                             language=\"en\"\n                             datetime-format=\"LLL\">\n        </vue-datetime-picker>\n      </div>\n      <div class=\"col-sm-4\">\n        <p class=\"form-control-static\">\n          Selected Datetime: <span class=\"vue-result2\">{{formatDatetime(result2)}}</span>\n        </p>\n      </div>\n    </div>\n    <div class=\"form-group\">\n      <label for=\"picker3\" class=\"col-sm-3 control-label\">\n        A date picker with customized date format:\n      </label>\n      <div class=\"col-sm-5\">\n        <vue-datetime-picker class=\"vue-picker3\" name=\"picker3\"\n                             model=\"{{@ result3}}\"\n                             type=\"date\"\n                             language=\"en-US\"\n                             date-format=\"L\">\n        </vue-datetime-picker>\n      </div>\n      <div class=\"col-sm-4\">\n        <p class=\"form-control-static\">\n          Selected Date: <span class=\"vue-result3\">{{formatDate(result3)}}</span>\n        </p>\n      </div>\n    </div>\n    <div class=\"form-group\">\n      <label for=\"picker4\" class=\"col-sm-3 control-label\">\n        A time picker with customized time format:\n      </label>\n      <div class=\"col-sm-5\">\n        <vue-datetime-picker class=\"vue-picker4\" name=\"picker4\"\n                             model=\"{{@ result4}}\"\n                             type=\"time\"\n                             language=\"zh-CN\"\n                             time-format=\"LT\">\n        </vue-datetime-picker>\n      </div>\n      <div class=\"col-sm-4\">\n        <p class=\"form-control-static\">\n          Selected Time: <span class=\"vue-result4\">{{formatTime(result4)}}</span>\n        </p>\n      </div>\n    </div>\n    <div class=\"form-group\">\n      <p class=\"form-control-static col-sm-12\">\n        Demonstration of the range of datetime. Note how the minimum/maximum\n        selectable datetime of the start/end datetime picker was changed\n        according to the selection of another picker.\n      </p>\n    </div>\n    <div class=\"form-group\">\n      <label for=\"start-picker\" class=\"col-sm-3 control-label\">\n        Start Datetime:\n      </label>\n      <div class=\"col-sm-3\">\n        <vue-datetime-picker class=\"vue-start-picker\" name=\"start-picker\"\n                             v-ref=\"startPicker\"\n                             model=\"{{@ startDatetime}}\"\n                             on-change=\"{{onStartDatetimeChanged}}\">\n        </vue-datetime-picker>\n      </div>\n      <label for=\"end-picker\" class=\"col-sm-3 control-label\">\n        End Datetime:\n      </label>\n      <div class=\"col-sm-3\">\n        <vue-datetime-picker class=\"vue-end-picker\" name=\"end-picker\"\n                             v-ref=\"endPicker\"\n                             model=\"{{@ endDatetime}}\"\n                             on-change=\"{{onEndDatetimeChanged}}\">\n        </vue-datetime-picker>\n      </div>\n    </div>\n  </div>"
 
 /***/ }
 /******/ ]);

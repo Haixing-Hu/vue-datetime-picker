@@ -10,7 +10,9 @@ var vm = new Vue({
       result1: null,
       result2: null,
       result3: null,
-      result4: null
+      result4: null,
+      startDatetime: moment(),
+      endDatetime: null
     };
   }
 });

@@ -69,6 +69,35 @@
         </p>
       </div>
     </div>
+    <div class="form-group">
+      <p class="form-control-static col-sm-12">
+        Demonstration of the range of datetime. Note how the minimum/maximum
+        selectable datetime of the start/end datetime picker was changed
+        according to the selection of another picker.
+      </p>
+    </div>
+    <div class="form-group">
+      <label for="start-picker" class="col-sm-3 control-label">
+        Start Datetime:
+      </label>
+      <div class="col-sm-3">
+        <vue-datetime-picker class="vue-start-picker" name="start-picker"
+                             v-ref="startPicker"
+                             model="{{@ startDatetime}}"
+                             on-change="{{onStartDatetimeChanged}}">
+        </vue-datetime-picker>
+      </div>
+      <label for="end-picker" class="col-sm-3 control-label">
+        End Datetime:
+      </label>
+      <div class="col-sm-3">
+        <vue-datetime-picker class="vue-end-picker" name="end-picker"
+                             v-ref="endPicker"
+                             model="{{@ endDatetime}}"
+                             on-change="{{onEndDatetimeChanged}}">
+        </vue-datetime-picker>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -100,6 +129,14 @@ module.exports = {
         return time.format("HH:mm:ss");
       }
     },
+    onStartDatetimeChanged: function(newStart) {
+      var endPicker = this.$.endPicker.control;
+      endPicker.minDate(newStart);
+    },
+    onEndDatetimeChanged: function(newEnd) {
+      var startPicker = this.$.startPicker.control;
+      startPicker.maxDate(newEnd);
+    }
   }
 };
 </script>
