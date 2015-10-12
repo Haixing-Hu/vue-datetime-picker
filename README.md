@@ -22,7 +22,7 @@ The demo page is [HERE](http://haixing-hu.github.io/vue-datetime-picker/demo.htm
 - [moment](https://github.com/moment/moment/) `>=2.9.0`
 - [moment-timezone](https://github.com/moment/moment-timezone/) `>=0.4.0`
 - [Eonasdan's bootstrap datetime picker](https://github.com/Eonasdan/bootstrap-datetimepicker) `>=4.17.37`
-- [vue-i18n-plugin](https://github.com/Haixing-Hu/vue-i18n) `>=0..3` This is optional.
+- [vue-i18n-plugin](https://github.com/Haixing-Hu/vue-i18n) `>=0.1.3` This is optional.
 
 # Instllation
 
