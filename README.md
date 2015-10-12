@@ -336,6 +336,8 @@ If no [vue-i18n](https://github.com/Haixing-Hu/vue-i18n) is used, or the
 localization file of the plugin does not provide the above localization messages,
 the default English messages will be used.
 
+Some localization files could be found in the `src/i18n` directory.
+
 # Contributing
 
 - Fork it !
