@@ -70,6 +70,10 @@ module.exports = {
               "</span>" +
             "</div>",
   props: {
+    name: {
+      type: String,
+      default: ""
+    },
     model: {
       required: true,
       twoWay: true
