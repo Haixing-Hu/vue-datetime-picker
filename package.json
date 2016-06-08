@@ -15,9 +15,7 @@
   "bugs": {
     "url": "https://github.com/Haixing-Hu/vue-datetime-picker/issues"
   },
-  "main": [
-    "src/vue-datetime-picker.js"
-  ],
+  "main": "src/vue-datetime-picker.js",
   "configs": {
     "directories": {
       "dist": "dist",
