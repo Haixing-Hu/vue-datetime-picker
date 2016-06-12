@@ -8,7 +8,14 @@ function getDemoVM (rootId, initResult1, initResult2,
                     initResult3, initResult4,
                     initStartDatetime, initEndDatetime) {
   return Vue.extend({
-    template: "<div><demo v-ref='demo'></demo></div>",
+    template: "<div><demo v-ref:demo"
+            + "           :result1.sync='result1'"
+            + "           :result2.sync='result2'"
+            + "           :result3.sync='result3'"
+            + "           :result4.sync='result4'"
+            + "           :start-datetime.sync='startDatetime'"
+            + "           :end-datetime.sync='endDatetime'>"
+            + "</demo></div>",
     el: function() {
       var el = document.createElement("div");
       el.id = rootId;
@@ -34,7 +41,7 @@ function getDemoVM (rootId, initResult1, initResult2,
 function getI18nVM(rootId, language) {
   return Vue.extend({
     template: "<div>" +
-              "  <vue-datetime-picker v-ref='picker' model='{{@ result}}'>" +
+              "  <vue-datetime-picker v-ref:picker :model.sync='result'>" +
               "  </vue-datetime-picker>" +
               "</div>",
     components: {
@@ -70,8 +77,8 @@ describe("vue-datetime-picker", function() {
     var vm = new VM();
     it("picker1", function(done) {
       vm.$nextTick(function() {
-        var demo = vm.$.demo;
-        var picker1 = demo.$.picker1.control;
+        var demo = vm.$refs.demo;
+        var picker1 = demo.$refs.picker1.control;
         assert.equal(picker1.date(), null);
         assert.equal(picker1.locale(), "en");
         done();
@@ -79,8 +86,8 @@ describe("vue-datetime-picker", function() {
     });
     it("picker2", function(done) {
       vm.$nextTick(function() {
-        var demo = vm.$.demo;
-        var picker2 = demo.$.picker2.control;
+        var demo = vm.$refs.demo;
+        var picker2 = demo.$refs.picker2.control;
         assert.equal(picker2.date().format("YYYY-MM-DD HH:mm:ss"),
                      initResult2.format("YYYY-MM-DD HH:mm:ss"));
         assert.equal(picker2.locale(), "en");
@@ -89,8 +96,8 @@ describe("vue-datetime-picker", function() {
     });
     it("picker3", function(done) {
       vm.$nextTick(function() {
-        var demo = vm.$.demo;
-        var picker3 = demo.$.picker3.control;
+        var demo = vm.$refs.demo;
+        var picker3 = demo.$refs.picker3.control;
         assert.equal(picker3.date().format("YYYY-MM-DD"),
                      initResult3.format("YYYY-MM-DD"));
         assert.equal(picker3.locale(), "en");
@@ -99,8 +106,8 @@ describe("vue-datetime-picker", function() {
     });
     it("picker4", function(done) {
       vm.$nextTick(function() {
-        var demo = vm.$.demo;
-        var picker4 = demo.$.picker4.control;
+        var demo = vm.$refs.demo;
+        var picker4 = demo.$refs.picker4.control;
         assert.equal(picker4.date().format("HH:mm:ss"),
                      initResult4.format("HH:mm:ss"));
         assert.equal(picker4.locale(), "zh-cn");
@@ -109,8 +116,8 @@ describe("vue-datetime-picker", function() {
     });
     it("start-picker", function(done) {
       vm.$nextTick(function() {
-        var demo = vm.$.demo;
-        var startPicker = demo.$.startPicker.control;
+        var demo = vm.$refs.demo;
+        var startPicker = demo.$refs.startPicker.control;
         assert.equal(startPicker.date().format("YYYY-MM-DD HH:mm:ss"),
                      initStartDatetime.format("YYYY-MM-DD HH:mm:ss"));
         assert.equal(startPicker.locale(), "en");
@@ -119,8 +126,8 @@ describe("vue-datetime-picker", function() {
     });
     it("end-picker", function(done) {
       vm.$nextTick(function() {
-        var demo = vm.$.demo;
-        var endPicker = demo.$.endPicker.control;
+        var demo = vm.$refs.demo;
+        var endPicker = demo.$refs.endPicker.control;
         assert.equal(endPicker.date(), null);
         assert.equal(endPicker.locale(), "en");
         done();
@@ -140,8 +147,8 @@ describe("vue-datetime-picker", function() {
     var vm = new VM();
     it("picker1", function(done) {
       vm.$nextTick(function() {
-        var demo = vm.$.demo;
-        var picker1 = demo.$.picker1.control;
+        var demo = vm.$refs.demo;
+        var picker1 = demo.$refs.picker1.control;
         vm.result1 = moment("2015-01-22 13:24:55", "YYYY-MM-DD HH:mm:ss");
         vm.$nextTick(function() {
           assert.equal(picker1.date().format("YYYY-MM-DD HH:mm:ss"), "2015-01-22 13:24:55");
@@ -151,8 +158,8 @@ describe("vue-datetime-picker", function() {
     });
     it("picker2, set to null", function(done) {
       vm.$nextTick(function() {
-        var demo = vm.$.demo;
-        var picker2 = demo.$.picker2.control;
+        var demo = vm.$refs.demo;
+        var picker2 = demo.$refs.picker2.control;
         vm.result2 = null;
         vm.$nextTick(function() {
           assert.equal(picker2.date(), null);
@@ -162,8 +169,8 @@ describe("vue-datetime-picker", function() {
     });
     it("picker3", function(done) {
       vm.$nextTick(function() {
-        var demo = vm.$.demo;
-        var picker3 = demo.$.picker3.control;
+        var demo = vm.$refs.demo;
+        var picker3 = demo.$refs.picker3.control;
         vm.result3 = moment("2010-01-01", "YYYY-MM-DD");
         vm.$nextTick(function() {
           assert.equal(picker3.date().format("YYYY-MM-DD"), "2010-01-01");
@@ -173,8 +180,8 @@ describe("vue-datetime-picker", function() {
     });
     it("picker4", function(done) {
       vm.$nextTick(function() {
-        var demo = vm.$.demo;
-        var picker4 = demo.$.picker4.control;
+        var demo = vm.$refs.demo;
+        var picker4 = demo.$refs.picker4.control;
         vm.result4 = moment("12:33:12", "HH:mm:ss");
         vm.$nextTick(function() {
           assert.equal(picker4.date().format("HH:mm:ss"), "12:33:12");
@@ -184,8 +191,8 @@ describe("vue-datetime-picker", function() {
     });
     it("start-picker", function(done) {
       vm.$nextTick(function() {
-        var demo = vm.$.demo;
-        var startPicker = demo.$.startPicker.control;
+        var demo = vm.$refs.demo;
+        var startPicker = demo.$refs.startPicker.control;
         vm.startDatetime = moment("2015-01-22 13:24:55", "YYYY-MM-DD HH:mm:ss");
         vm.$nextTick(function() {
           assert.equal(startPicker.date().format("YYYY-MM-DD HH:mm:ss"), "2015-01-22 13:24:55");
@@ -195,8 +202,8 @@ describe("vue-datetime-picker", function() {
     });
     it("end-picker", function(done) {
       vm.$nextTick(function() {
-        var demo = vm.$.demo;
-        var endPicker = demo.$.endPicker.control;
+        var demo = vm.$refs.demo;
+        var endPicker = demo.$refs.endPicker.control;
         vm.endDatetime = moment("2015-01-23 13:24:55", "YYYY-MM-DD HH:mm:ss");
         vm.$nextTick(function() {
           assert.equal(endPicker.date().format("YYYY-MM-DD HH:mm:ss"), "2015-01-23 13:24:55");
@@ -218,8 +225,8 @@ describe("vue-datetime-picker", function() {
     var vm = new VM();
     it("picker1", function(done) {
       vm.$nextTick(function() {
-        var demo = vm.$.demo;
-        var picker1 = demo.$.picker1.control;
+        var demo = vm.$refs.demo;
+        var picker1 = demo.$refs.picker1.control;
         picker1.date(moment("2015-01-22 13:24:55", "YYYY-MM-DD HH:mm:ss"));
         vm.$nextTick(function() {
           assert.equal(vm.result1.format("YYYY-MM-DD HH:mm:ss"), "2015-01-22 13:24:55");
@@ -229,8 +236,8 @@ describe("vue-datetime-picker", function() {
     });
     it("picker2, set to null", function(done) {
       vm.$nextTick(function() {
-        var demo = vm.$.demo;
-        var picker2 = demo.$.picker2.control;
+        var demo = vm.$refs.demo;
+        var picker2 = demo.$refs.picker2.control;
         picker2.date(null);
         vm.$nextTick(function() {
           assert.equal(vm.result2, null);
@@ -240,8 +247,8 @@ describe("vue-datetime-picker", function() {
     });
     it("picker3", function(done) {
       vm.$nextTick(function() {
-        var demo = vm.$.demo;
-        var picker3 = demo.$.picker3.control;
+        var demo = vm.$refs.demo;
+        var picker3 = demo.$refs.picker3.control;
         picker3.date(moment("2010-01-01", "YYYY-MM-DD"));
         vm.$nextTick(function() {
           assert.equal(vm.result3.format("YYYY-MM-DD"), "2010-01-01");
@@ -251,8 +258,8 @@ describe("vue-datetime-picker", function() {
     });
     it("picker4", function(done) {
       vm.$nextTick(function() {
-        var demo = vm.$.demo;
-        var picker4 = demo.$.picker4.control;
+        var demo = vm.$refs.demo;
+        var picker4 = demo.$refs.picker4.control;
         picker4.date(moment("12:33:12", "HH:mm:ss"));
         vm.$nextTick(function() {
           assert.equal(vm.result4.format("HH:mm:ss"), "12:33:12");
@@ -262,8 +269,8 @@ describe("vue-datetime-picker", function() {
     });
     it("start-picker", function(done) {
       vm.$nextTick(function() {
-        var demo = vm.$.demo;
-        var startPicker = demo.$.startPicker.control;
+        var demo = vm.$refs.demo;
+        var startPicker = demo.$refs.startPicker.control;
         startPicker.date(moment("2015-01-22 13:24:55", "YYYY-MM-DD HH:mm:ss"));
         vm.$nextTick(function() {
           assert.equal(vm.startDatetime.format("YYYY-MM-DD HH:mm:ss"), "2015-01-22 13:24:55");
@@ -273,8 +280,8 @@ describe("vue-datetime-picker", function() {
     });
     it("end-picker", function(done) {
       vm.$nextTick(function() {
-        var demo = vm.$.demo;
-        var endPicker = demo.$.endPicker.control;
+        var demo = vm.$refs.demo;
+        var endPicker = demo.$refs.endPicker.control;
         endPicker.date(moment("2015-01-23 13:24:55", "YYYY-MM-DD HH:mm:ss"));
         vm.$nextTick(function() {
           assert.equal(vm.endDatetime.format("YYYY-MM-DD HH:mm:ss"), "2015-01-23 13:24:55");
@@ -296,9 +303,9 @@ describe("vue-datetime-picker", function() {
     var vm = new VM();
     it("start-picker: change model", function(done) {
       vm.$nextTick(function() {
-        var demo = vm.$.demo;
-        var startPicker = demo.$.startPicker.control;
-        var endPicker = demo.$.endPicker.control;
+        var demo = vm.$refs.demo;
+        var startPicker = demo.$refs.startPicker.control;
+        var endPicker = demo.$refs.endPicker.control;
         vm.startDatetime = moment("2015-01-22 13:24:55", "YYYY-MM-DD HH:mm:ss");
         vm.$nextTick(function() {
           assert.equal(startPicker.date().format("YYYY-MM-DD HH:mm:ss"), "2015-01-22 13:24:55");
@@ -309,9 +316,9 @@ describe("vue-datetime-picker", function() {
     });
     it("start-picker: change selection", function(done) {
       vm.$nextTick(function() {
-        var demo = vm.$.demo;
-        var startPicker = demo.$.startPicker.control;
-        var endPicker = demo.$.endPicker.control;
+        var demo = vm.$refs.demo;
+        var startPicker = demo.$refs.startPicker.control;
+        var endPicker = demo.$refs.endPicker.control;
         startPicker.date(moment("2015-01-22 13:24:55", "YYYY-MM-DD HH:mm:ss"));
         vm.$nextTick(function() {
           assert.equal(vm.startDatetime.format("YYYY-MM-DD HH:mm:ss"), "2015-01-22 13:24:55");
@@ -322,9 +329,9 @@ describe("vue-datetime-picker", function() {
     });
     it("end-picker: change the model", function(done) {
       vm.$nextTick(function() {
-        var demo = vm.$.demo;
-        var startPicker = demo.$.startPicker.control;
-        var endPicker = demo.$.endPicker.control;
+        var demo = vm.$refs.demo;
+        var startPicker = demo.$refs.startPicker.control;
+        var endPicker = demo.$refs.endPicker.control;
         vm.endDatetime = moment("2015-01-23 13:24:55", "YYYY-MM-DD HH:mm:ss");
         vm.$nextTick(function() {
           assert.equal(endPicker.date().format("YYYY-MM-DD HH:mm:ss"), "2015-01-23 13:24:55");
@@ -335,9 +342,9 @@ describe("vue-datetime-picker", function() {
     });
     it("end-picker: change the selection", function(done) {
       vm.$nextTick(function() {
-        var demo = vm.$.demo;
-        var startPicker = demo.$.startPicker.control;
-        var endPicker = demo.$.endPicker.control;
+        var demo = vm.$refs.demo;
+        var startPicker = demo.$refs.startPicker.control;
+        var endPicker = demo.$refs.endPicker.control;
         endPicker.date(moment("2015-01-23 13:24:55", "YYYY-MM-DD HH:mm:ss"));
         vm.$nextTick(function() {
           assert.equal(vm.endDatetime.format("YYYY-MM-DD HH:mm:ss"), "2015-01-23 13:24:55");
@@ -358,7 +365,7 @@ describe("vue-datetime-picker", function() {
       var VM = getI18nVM("test-i18n", "zh-CN");
       var vm = new VM();
       vm.$nextTick(function() {
-        var picker = vm.$.picker.control;
+        var picker = vm.$refs.picker.control;
         assert.equal(picker.locale(), "zh-cn");
         done();
       });
@@ -367,7 +374,7 @@ describe("vue-datetime-picker", function() {
       var VM = getI18nVM("test-i18n", "zh-CN");
       var vm = new VM();
       vm.$nextTick(function() {
-        var picker = vm.$.picker.control;
+        var picker = vm.$refs.picker.control;
         var tooltips = picker.tooltips();
         assert.equal(tooltips.today, "跳转至今日");
         assert.equal(tooltips.clear, "清除选择");

@@ -5,8 +5,8 @@
         A default datetime picker:
       </label>
       <div class="col-sm-5">
-        <vue-datetime-picker v-ref="picker1" name="picker1"
-                             model="{{@ result1}}">
+        <vue-datetime-picker v-ref:picker1 name="picker1"
+                             :model.sync="result1">
         </vue-datetime-picker>
       </div>
       <div class="col-sm-4">
@@ -20,8 +20,8 @@
         A datetime picker with customized datetime format:
       </label>
       <div class="col-sm-5">
-        <vue-datetime-picker v-ref="picker2" name="picker2"
-                             model="{{@ result2}}"
+        <vue-datetime-picker v-ref:picker2 name="picker2"
+                             :model.sync="result2"
                              type="datetime"
                              language="en-US"
                              datetime-format="LLL">
@@ -38,8 +38,8 @@
         A date picker with customized date format:
       </label>
       <div class="col-sm-5">
-        <vue-datetime-picker v-ref="picker3" name="picker3"
-                             model="{{@ result3}}"
+        <vue-datetime-picker v-ref:picker3 name="picker3"
+                             :model.sync="result3"
                              type="date"
                              language="en"
                              date-format="L">
@@ -56,8 +56,8 @@
         A time picker with customized time format:
       </label>
       <div class="col-sm-5">
-        <vue-datetime-picker v-ref="picker4" name="picker4"
-                             model="{{@ result4}}"
+        <vue-datetime-picker v-ref:picker4 name="picker4"
+                             :model.sync="result4"
                              type="time"
                              language="zh-CN"
                              time-format="LT">
@@ -81,18 +81,18 @@
         Start Datetime:
       </label>
       <div class="col-sm-3">
-        <vue-datetime-picker v-ref="startPicker" name="start-picker"
-                             model="{{@ startDatetime}}"
-                             on-change="{{onStartDatetimeChanged}}">
+        <vue-datetime-picker v-ref:start-picker name="start-picker"
+                             :model.sync="startDatetime"
+                             :on-change="onStartDatetimeChanged">
         </vue-datetime-picker>
       </div>
       <label for="end-picker" class="col-sm-3 control-label">
         End Datetime:
       </label>
       <div class="col-sm-3">
-        <vue-datetime-picker v-ref="endPicker" name="end-picker"
-                             model="{{@ endDatetime}}"
-                             on-change="{{onEndDatetimeChanged}}">
+        <vue-datetime-picker v-ref:end-picker name="end-picker"
+                             :model.sync="endDatetime"
+                             :on-change="onEndDatetimeChanged">
         </vue-datetime-picker>
       </div>
     </div>
@@ -101,9 +101,34 @@
 
 <script>
 module.exports = {
-  inherit: true,
   components: {
     "vue-datetime-picker": require("../src/vue-datetime-picker.js")
+  },
+  props: {
+    result1: {
+      required: true,
+      twoWay: true
+    },
+    result2: {
+      required: true,
+      twoWay: true
+    },
+    result3: {
+      required: true,
+      twoWay: true
+    },
+    result4: {
+      required: true,
+      twoWay: true
+    },
+    startDatetime: {
+      required: true,
+      twoWay: true
+    },
+    endDatetime: {
+      required: true,
+      twoWay: true
+    }
   },
   methods: {
     formatDatetime: function(datetime) {
@@ -128,11 +153,11 @@ module.exports = {
       }
     },
     onStartDatetimeChanged: function(newStart) {
-      var endPicker = this.$.endPicker.control;
+      var endPicker = this.$refs.endPicker.control;
       endPicker.minDate(newStart);
     },
     onEndDatetimeChanged: function(newEnd) {
-      var startPicker = this.$.startPicker.control;
+      var startPicker = this.$refs.startPicker.control;
       startPicker.maxDate(newEnd);
     }
   }

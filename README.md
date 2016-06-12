@@ -16,13 +16,13 @@ The demo page is [HERE](http://haixing-hu.github.io/vue-datetime-picker/demo.htm
 
 # Requirements
 
-- [Vue.js](https://github.com/yyx990803/vue) `>=0.12.0`
-- [bootstrap](https://github.com/twbs/bootstrap) `>=3.3.5`
-- [font-awesome](https://github.com/FortAwesome/Font-Awesome) `>=4.2.0`
-- [moment](https://github.com/moment/moment/) `>=2.9.0`
-- [moment-timezone](https://github.com/moment/moment-timezone/) `>=0.4.0`
-- [Eonasdan's bootstrap datetime picker](https://github.com/Eonasdan/bootstrap-datetimepicker) `>=4.17.37`
-- [vue-i18n-plugin](https://github.com/Haixing-Hu/vue-i18n) `>=0.1.3` This is optional.
+- [Vue.js](https://github.com/yyx990803/vue) `^1.0.24`
+- [bootstrap](https://github.com/twbs/bootstrap) `^3.3.6`
+- [font-awesome](https://github.com/FortAwesome/Font-Awesome) `^4.2.0`
+- [moment](https://github.com/moment/moment/) `^2.9.0`
+- [moment-timezone](https://github.com/moment/moment-timezone/) `^0.4.0`
+- [Eonasdan's bootstrap datetime picker](https://github.com/Eonasdan/bootstrap-datetimepicker) `^4.17.37`
+- [vue-i18n-plugin](https://github.com/Haixing-Hu/vue-i18n) `^0.2.2` This is optional.
 
 # Instllation
 
@@ -50,7 +50,7 @@ The HTML snippets are as follows:
     </label>
     <div class="col-sm-5">
       <vue-datetime-picker class="vue-picker1" name="picker1"
-                           model="{{@ result1}}">
+                           :model.sync="result1">
       </vue-datetime-picker>
     </div>
     <div class="col-sm-4">
@@ -65,7 +65,7 @@ The HTML snippets are as follows:
     </label>
     <div class="col-sm-5">
       <vue-datetime-picker class="vue-picker2" name="picker2"
-                           model="{{@ result2}}"
+                           :model.sync="result2"
                            type="datetime"
                            language="en"
                            datetime-format="LLL">
@@ -83,7 +83,7 @@ The HTML snippets are as follows:
     </label>
     <div class="col-sm-5">
       <vue-datetime-picker class="vue-picker3" name="picker3"
-                           model="{{@ result3}}"
+                           :model.sync="result3"
                            type="date"
                            language="en-US"
                            date-format="L">
@@ -101,7 +101,7 @@ The HTML snippets are as follows:
     </label>
     <div class="col-sm-5">
       <vue-datetime-picker class="vue-picker4" name="picker4"
-                           model="{{@ result4}}"
+                           :model.sync="result4"
                            type="time"
                            language="zh-CN"
                            time-format="LT">
@@ -126,9 +126,9 @@ The HTML snippets are as follows:
     </label>
     <div class="col-sm-3">
       <vue-datetime-picker class="vue-start-picker" name="start-picker"
-                           v-ref="startPicker"
-                           model="{{@ startDatetime}}"
-                           on-change="{{onStartDatetimeChanged}}">
+                           v-ref:start-picker
+                           :model.sync="startDatetime"
+                           :on-change="onStartDatetimeChanged">
       </vue-datetime-picker>
     </div>
     <label for="end-picker" class="col-sm-3 control-label">
@@ -136,9 +136,9 @@ The HTML snippets are as follows:
     </label>
     <div class="col-sm-3">
       <vue-datetime-picker class="vue-end-picker" name="end-picker"
-                           v-ref="endPicker"
-                           model="{{@ endDatetime}}"
-                           on-change="{{onEndDatetimeChanged}}">
+                           v-ref:end-picker
+                           :model.sync="endDatetime"
+                           :on-change="onEndDatetimeChanged">
       </vue-datetime-picker>
     </div>
   </div>
@@ -273,6 +273,10 @@ library.
 This property only works when the `type` property is set to `"time"`. Default
 value of this property is `"HH:mm:ss"`.
 
+## `name`
+
+The optional name of the selection control.
+
 ## `onChange`
 
 The optional event handler triggered when the value of the datetime picker
@@ -386,13 +390,13 @@ $ gulp test:coveralls
 You can also run `bower install` and `gulp build` together with the following
 command:
 ```shell
-npm build
+npm run build
 ```
 
 Or run `bower install` and `gulp test:coveralls` together with the following
 command:
 ```shell
-npm test
+npm run test
 ```
 
 # License

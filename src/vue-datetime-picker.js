@@ -54,6 +54,8 @@ var DEFAULT_LANGUAGE = "en-US";
  *    must be a valid datetime format of the moment.js library. This property
  *    only works when the "type" property is "time". Default value is
  *    "HH:mm:ss".
+ * @param name
+ *    the optional name of the selection control.
  * @param onChange
  *    the optional event handler triggered when the value of the datetime picker
  *    was changed. If this parameter is presented and is not null, it must be a
@@ -64,7 +66,7 @@ module.exports = {
   replace: true,
   inherit: false,
   template: "<div class='input-group date'>" +
-              "<input class='form-control' name='{{name}}' type='text' />" +
+              "<input class='form-control' :name='name' type='text' />" +
               "<span class='input-group-addon'>" +
                 "<i class='fa fa-fw fa-calendar'></i>" +
               "</span>" +
@@ -98,6 +100,11 @@ module.exports = {
       type: String,
       required: false,
       default: "HH:mm:ss"
+    },
+    name: {
+      type: String,
+      required: false,
+      default: ""
     },
     onChange: {
       required: false,
