@@ -24,7 +24,7 @@ The demo page is [HERE](http://haixing-hu.github.io/vue-datetime-picker/demo.htm
 - [Eonasdan's bootstrap datetime picker](https://github.com/Eonasdan/bootstrap-datetimepicker) `^4.17.37`
 - [vue-i18n-plugin](https://github.com/Haixing-Hu/vue-i18n) `^0.2.2` This is optional.
 
-# Instllation
+# Installation
 
 ## npm
 
