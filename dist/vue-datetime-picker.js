@@ -1,5 +1,5 @@
 /*!
- * vue-datetime-picker v0.2.0
+ * vue-datetime-picker v0.2.2
  * (c) 2016 Haixing Hu
  * Released under the MIT License.
  */
@@ -190,7 +190,7 @@
 	      if (this.$language) {
 	        language = this.$language;
 	      } else {
-	        langauge = DEFAULT_LANGUAGE;
+	        language = DEFAULT_LANGUAGE;
 	      }
 	    }
 	    options.locale = this.getLanguageCode(language);

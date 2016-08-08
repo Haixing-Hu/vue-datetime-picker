@@ -139,7 +139,7 @@ module.exports = {
       if (this.$language) {
         language = this.$language;
       } else {
-        langauge = DEFAULT_LANGUAGE;
+        language = DEFAULT_LANGUAGE;
       }
     }
     options.locale = this.getLanguageCode(language);
