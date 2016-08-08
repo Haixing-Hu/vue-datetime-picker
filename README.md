@@ -29,7 +29,7 @@ The demo page is [HERE](http://haixing-hu.github.io/vue-datetime-picker/demo.htm
 ## npm
 
 ```shell
-$ npm install vue-datetime-picker
+$ npm install --save vue-datetime-picker
 ```
 
 ## bower
