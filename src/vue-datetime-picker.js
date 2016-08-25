@@ -72,6 +72,9 @@ module.exports = {
               "</span>" +
             "</div>",
   props: {
+    /**
+     * The following are options bespoke to the vue-datetime-picker plugin. 
+     */
     model: {
       required: true,
       twoWay: true
@@ -109,6 +112,161 @@ module.exports = {
     onChange: {
       required: false,
       default: null
+    },
+    
+    /**
+     * The following options are inherited from DateTimePicker (bootstrap plugin)
+     */
+    minDate: {
+      required: false,
+      default: false
+    },
+    maxDate: {
+      required: false,
+      default: false
+    },
+    useCurrent: {
+      required: false,
+      type: Boolean,
+      default: true
+    },
+    collapse: {
+      required: false,
+      type: Boolean,
+      default: true
+    },
+    disabledDates: {
+      required: false,
+      type: Array,
+      default: false
+    },
+    enabledDates: {
+      required: false,
+      type: Array,
+      default: false
+    },
+    icons: {
+      required: false,
+      type: Object,
+      default: function() {
+        return {
+          time: 'fa fa-clock-o',
+          date: 'fa fa-calendar',
+          up: 'fa fa-chevron-up',
+          down: 'fa fa-chevron-down',
+          previous: 'fa fa-chevron-left',
+          next: 'fa fa-chevron-right',
+          today: 'fa fa-dot-circle-o',
+          clear: 'fa fa-trash',
+          close: 'fa fa-times'
+        };
+      }
+    },
+    useStrict: {
+      required: false,
+      type: Boolean,
+      default: false
+    },
+    sideBySide: {
+      required: false,
+      type: Boolean,
+      default: false
+    },
+    daysOfWeekDisabled: {
+      required: false,
+      type: Array,
+      default: function() {
+        return [];
+      }
+    },
+    calendarWeeks: {
+      required: false,
+      type: Boolean,
+      default: false
+    },
+    viewMode: {
+      required: false,
+      type: String,
+      default: 'days'
+    },
+    toolbarPlacement: {
+      required: false,
+      type: String,
+      default: 'default'
+    },
+    showTodayButton: {
+      required: false,
+      type: Boolean,
+      default: false
+    },
+    showClear: {
+      required: false,
+      type: Boolean,
+      default: false
+    },
+    showClose: {
+      required: false,
+      type: Boolean,
+      default: false
+    },
+    widgetParent: {
+      required: false,
+      default: null
+    },
+    keepOpen: {
+      required: false,
+      type: Boolean,
+      default: false
+    },
+    inline: {
+      required: false,
+      type: Boolean,
+      default:false
+    },
+    keepInvalid: {
+      required: false,
+      type: Boolean,
+      default: false
+    },
+    debug: {
+      required: false,
+      type: Boolean,
+      default: false
+    },
+    ignoreReadonly: {
+      required: false,
+      type: Boolean,
+      default: false
+    },
+    disabledTimeIntervals: {
+      required: false,
+      type: Boolean,
+      default: false
+    },
+    allowInputToggle: {
+      required: false,
+      type: Boolean,
+      default: false
+    },
+    focusOnShow: {
+      required: false,
+      type: Boolean,
+      default: true
+    },
+    enabledHours: {
+      required: false,
+      type: Boolean,
+      default: false
+    },
+    disabledHours: {
+      required: false,
+      type: Boolean,
+      default: false
+    },
+    viewDate: {
+      required: false,
+      type: Boolean,
+      default: false
     }
   },
   beforeCompile: function() {
@@ -116,23 +274,37 @@ module.exports = {
     this.control = null;
   },
   ready: function() {
-    // console.debug("datetime-picker.ready");
     var options = {
-      useCurrent: false,
-      showClear: true,
-      showClose: false,
-      icons: {
-        time: 'fa fa-clock-o',
-        date: 'fa fa-calendar',
-        up: 'fa fa-chevron-up',
-        down: 'fa fa-chevron-down',
-        previous: 'fa fa-chevron-left',
-        next: 'fa fa-chevron-right',
-        today: 'fa fa-dot-circle-o',
-        clear: 'fa fa-trash',
-        close: 'fa fa-times'
-      }
+      minDate: this.minDate,
+      maxDate: this.maxDate,
+      useCurrent: this.useCurrent,
+      collapse: this.collapse,
+      disabledDates: this.disabledDates,
+      enabledDates: this.enabledDates,
+      icons: this.icons,
+      useStrict: this.useStrict,
+      sideBySide: this.sideBySide,
+      daysOfWeekDisabled: this.daysOfWeekDisabled,
+      calendarWeeks: this.calendarWeeks,
+      viewMode: this.viewMode,
+      toolbarPlacement: this.toolbarPlacement,
+      showTodayButton: this.showTodayButton,
+      showClear: this.showClear,
+      showClose: this.showClose,
+      widgetParent: this.widgetParent,
+      keepOpen: this.keepOpen,
+      inline: this.inline,
+      keepInvalid: this.keepInvalid,
+      debug: this.debug,
+      ignoreReadonly: this.ignoreReadonly,
+      disabledTimeIntervals: this.disabledTimeIntervals,
+      allowInputToggle: this.allowInputToggle,
+      focusOnShow: this.focusOnShow,
+      enabledHours: this.enabledHours,
+      disabledHours: this.disabledHours,
+      viewDate: this.viewDate
     };
+    
     // set the locale
     var language = this.language;
     if (language === null || language === "") {
