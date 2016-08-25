@@ -79,7 +79,7 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {/*!
-	 * Vue.js v1.0.24
+	 * Vue.js v1.0.26
 	 * (c) 2016 Evan You
 	 * Released under the MIT License.
 	 */
@@ -482,10 +482,15 @@
 
 	  // UA sniffing for working around browser-specific quirks
 	  var UA = inBrowser && window.navigator.userAgent.toLowerCase();
+	  var isIE = UA && UA.indexOf('trident') > 0;
 	  var isIE9 = UA && UA.indexOf('msie 9.0') > 0;
 	  var isAndroid = UA && UA.indexOf('android') > 0;
 	  var isIos = UA && /(iphone|ipad|ipod|ios)/i.test(UA);
-	  var isWechat = UA && UA.indexOf('micromessenger') > 0;
+	  var iosVersionMatch = isIos && UA.match(/os ([\d_]+)/);
+	  var iosVersion = iosVersionMatch && iosVersionMatch[1].split('_');
+
+	  // detecting iOS UIWebView by indexedDB
+	  var hasMutationObserverBug = iosVersion && Number(iosVersion[0]) >= 9 && Number(iosVersion[1]) >= 3 && !window.indexedDB;
 
 	  var transitionProp = undefined;
 	  var transitionEndEvent = undefined;
@@ -526,7 +531,7 @@
 	    }
 
 	    /* istanbul ignore if */
-	    if (typeof MutationObserver !== 'undefined' && !(isWechat && isIos)) {
+	    if (typeof MutationObserver !== 'undefined' && !hasMutationObserverBug) {
 	      var counter = 1;
 	      var observer = new MutationObserver(nextTickHandler);
 	      var textNode = document.createTextNode(counter);
@@ -598,12 +603,12 @@
 
 	  p.put = function (key, value) {
 	    var removed;
-	    if (this.size === this.limit) {
-	      removed = this.shift();
-	    }
 
 	    var entry = this.get(key, true);
 	    if (!entry) {
+	      if (this.size === this.limit) {
+	        removed = this.shift();
+	      }
 	      entry = {
 	        key: key
 	      };
@@ -848,7 +853,7 @@
 	    var unsafeOpen = escapeRegex(config.unsafeDelimiters[0]);
 	    var unsafeClose = escapeRegex(config.unsafeDelimiters[1]);
 	    tagRE = new RegExp(unsafeOpen + '((?:.|\\n)+?)' + unsafeClose + '|' + open + '((?:.|\\n)+?)' + close, 'g');
-	    htmlRE = new RegExp('^' + unsafeOpen + '.*' + unsafeClose + '$');
+	    htmlRE = new RegExp('^' + unsafeOpen + '((?:.|\\n)+?)' + unsafeClose + '$');
 	    // reset cache
 	    cache = new Cache(1000);
 	  }
@@ -1635,7 +1640,8 @@
 	        return (/HTMLUnknownElement/.test(el.toString()) &&
 	          // Chrome returns unknown for several HTML5 elements.
 	          // https://code.google.com/p/chromium/issues/detail?id=540526
-	          !/^(data|time|rtc|rb)$/.test(tag)
+	          // Firefox returns unknown for some "Interactive elements."
+	          !/^(data|time|rtc|rb|details|dialog|summary)$/.test(tag)
 	        );
 	      }
 	    };
@@ -1971,7 +1977,9 @@
 	    }
 	    if (child.mixins) {
 	      for (var i = 0, l = child.mixins.length; i < l; i++) {
-	        parent = mergeOptions(parent, child.mixins[i], vm);
+	        var mixin = child.mixins[i];
+	        var mixinOptions = mixin.prototype instanceof Vue ? mixin.options : mixin;
+	        parent = mergeOptions(parent, mixinOptions, vm);
 	      }
 	    }
 	    for (key in parent) {
@@ -2399,10 +2407,13 @@
 	  	hasProto: hasProto,
 	  	inBrowser: inBrowser,
 	  	devtools: devtools,
+	  	isIE: isIE,
 	  	isIE9: isIE9,
 	  	isAndroid: isAndroid,
 	  	isIos: isIos,
-	  	isWechat: isWechat,
+	  	iosVersionMatch: iosVersionMatch,
+	  	iosVersion: iosVersion,
+	  	hasMutationObserverBug: hasMutationObserverBug,
 	  	get transitionProp () { return transitionProp; },
 	  	get transitionEndEvent () { return transitionEndEvent; },
 	  	get animationProp () { return animationProp; },
@@ -2890,7 +2901,9 @@
 	  var restoreRE = /"(\d+)"/g;
 	  var pathTestRE = /^[A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*|\['.*?'\]|\[".*?"\]|\[\d+\]|\[[A-Za-z_$][\w$]*\])*$/;
 	  var identRE = /[^\w$\.](?:[A-Za-z_$][\w$]*)/g;
-	  var booleanLiteralRE = /^(?:true|false)$/;
+	  var literalValueRE$1 = /^(?:true|false|null|undefined|Infinity|NaN)$/;
+
+	  function noop() {}
 
 	  /**
 	   * Save / Rewrite / Restore
@@ -2972,7 +2985,7 @@
 	    // save strings and object literal keys
 	    var body = exp.replace(saveRE, save).replace(wsRE, '');
 	    // rewrite all paths
-	    // pad 1 space here becaue the regex matches 1 extra char
+	    // pad 1 space here because the regex matches 1 extra char
 	    body = (' ' + body).replace(identRE, rewrite).replace(restoreRE, restore);
 	    return makeGetterFn(body);
 	  }
@@ -2993,7 +3006,15 @@
 	      return new Function('scope', 'return ' + body + ';');
 	      /* eslint-enable no-new-func */
 	    } catch (e) {
-	      'development' !== 'production' && warn('Invalid expression. ' + 'Generated function body: ' + body);
+	      if (true) {
+	        /* istanbul ignore if */
+	        if (e.toString().match(/unsafe-eval|CSP/)) {
+	          warn('It seems you are using the default build of Vue.js in an environment ' + 'with Content Security Policy that prohibits unsafe-eval. ' + 'Use the CSP-compliant build instead: ' + 'http://vuejs.org/guide/installation.html#CSP-compliant-build');
+	        } else {
+	          warn('Invalid expression. ' + 'Generated function body: ' + body);
+	        }
+	      }
+	      return noop;
 	    }
 	  }
 
@@ -3055,8 +3076,8 @@
 
 	  function isSimplePath(exp) {
 	    return pathTestRE.test(exp) &&
-	    // don't treat true/false as paths
-	    !booleanLiteralRE.test(exp) &&
+	    // don't treat literal values as paths
+	    !literalValueRE$1.test(exp) &&
 	    // Math constants e.g. Math.PI, Math.E etc.
 	    exp.slice(0, 5) !== 'Math.';
 	  }
@@ -3472,7 +3493,7 @@
 	    }
 	    var isA = isArray(val);
 	    var isO = isObject(val);
-	    if (isA || isO) {
+	    if ((isA || isO) && Object.isExtensible(val)) {
 	      if (val.__ob__) {
 	        var depId = val.__ob__.dep.id;
 	        if (seen.has(depId)) {
@@ -3535,6 +3556,7 @@
 
 	  var tagRE$1 = /<([\w:-]+)/;
 	  var entityRE = /&#?\w+?;/;
+	  var commentRE = /<!--/;
 
 	  /**
 	   * Convert a string template to a DocumentFragment.
@@ -3557,8 +3579,9 @@
 	    var frag = document.createDocumentFragment();
 	    var tagMatch = templateString.match(tagRE$1);
 	    var entityMatch = entityRE.test(templateString);
+	    var commentMatch = commentRE.test(templateString);
 
-	    if (!tagMatch && !entityMatch) {
+	    if (!tagMatch && !entityMatch && !commentMatch) {
 	      // text only, return a single text node.
 	      frag.appendChild(document.createTextNode(templateString));
 	    } else {
@@ -4525,7 +4548,7 @@
 	     * the filters. This is passed to and called by the watcher.
 	     *
 	     * It is necessary for this to be called during the
-	     * wathcer's dependency collection phase because we want
+	     * watcher's dependency collection phase because we want
 	     * the v-for to update when the source Object is mutated.
 	     */
 
@@ -4868,7 +4891,10 @@
 	    },
 
 	    update: function update(value) {
-	      this.el.value = _toString(value);
+	      // #3029 only update when the value changes. This prevent
+	      // browsers from overwriting values like selectionStart
+	      value = _toString(value);
+	      if (value !== this.el.value) this.el.value = value;
 	    },
 
 	    unbind: function unbind() {
@@ -4917,6 +4943,8 @@
 	  var select = {
 
 	    bind: function bind() {
+	      var _this = this;
+
 	      var self = this;
 	      var el = this.el;
 
@@ -4948,7 +4976,12 @@
 	      // selectedIndex with value -1 to 0 when the element
 	      // is appended to a new parent, therefore we have to
 	      // force a DOM update whenever that happens...
-	      this.vm.$on('hook:attached', this.forceUpdate);
+	      this.vm.$on('hook:attached', function () {
+	        nextTick(_this.forceUpdate);
+	      });
+	      if (!inDoc(el)) {
+	        nextTick(this.forceUpdate);
+	      }
 	    },
 
 	    update: function update(value) {
@@ -6218,7 +6251,7 @@
 	    if (value === undefined) {
 	      value = getPropDefaultValue(vm, prop);
 	    }
-	    value = coerceProp(prop, value);
+	    value = coerceProp(prop, value, vm);
 	    var coerced = value !== rawValue;
 	    if (!assertProp(prop, value, vm)) {
 	      value = undefined;
@@ -6337,13 +6370,17 @@
 	   * @return {*}
 	   */
 
-	  function coerceProp(prop, value) {
+	  function coerceProp(prop, value, vm) {
 	    var coerce = prop.options.coerce;
 	    if (!coerce) {
 	      return value;
 	    }
-	    // coerce is a function
-	    return coerce(value);
+	    if (typeof coerce === 'function') {
+	      return coerce(value);
+	    } else {
+	      'development' !== 'production' && warn('Invalid coerce for prop "' + prop.name + '": expected function, got ' + typeof coerce + '.', vm);
+	      return value;
+	    }
 	  }
 
 	  /**
@@ -6875,10 +6912,9 @@
 	      // resolve on owner vm
 	      var hooks = resolveAsset(this.vm.$options, 'transitions', id);
 	      id = id || 'v';
+	      oldId = oldId || 'v';
 	      el.__v_trans = new Transition(el, id, hooks, this.vm);
-	      if (oldId) {
-	        removeClass(el, oldId + '-transition');
-	      }
+	      removeClass(el, oldId + '-transition');
 	      addClass(el, id + '-transition');
 	    }
 	  };
@@ -7296,7 +7332,7 @@
 	            if (token.html) {
 	              replace(node, parseTemplate(value, true));
 	            } else {
-	              node.data = value;
+	              node.data = _toString(value);
 	            }
 	          } else {
 	            vm._bindDir(token.descriptor, node, host, scope);
@@ -8280,7 +8316,7 @@
 	    };
 	  }
 
-	  function noop() {}
+	  function noop$1() {}
 
 	  /**
 	   * A directive links a DOM element with a piece of data,
@@ -8379,7 +8415,7 @@
 	          }
 	        };
 	      } else {
-	        this._update = noop;
+	        this._update = noop$1;
 	      }
 	      var preProcess = this._preProcess ? bind(this._preProcess, this) : null;
 	      var postProcess = this._postProcess ? bind(this._postProcess, this) : null;
@@ -9817,7 +9853,7 @@
 
 	    json: {
 	      read: function read(value, indent) {
-	        return typeof value === 'string' ? value : JSON.stringify(value, null, Number(indent) || 2);
+	        return typeof value === 'string' ? value : JSON.stringify(value, null, arguments.length > 1 ? indent : 2);
 	      },
 	      write: function write(value) {
 	        try {
@@ -9890,7 +9926,13 @@
 
 	    pluralize: function pluralize(value) {
 	      var args = toArray(arguments, 1);
-	      return args.length > 1 ? args[value % 10 - 1] || args[args.length - 1] : args[0] + (value === 1 ? '' : 's');
+	      var length = args.length;
+	      if (length > 1) {
+	        var index = value % 10 - 1;
+	        return index in args ? args[index] : args[length - 1];
+	      } else {
+	        return args[0] + (value === 1 ? '' : 's');
+	      }
 	    },
 
 	    /**
@@ -10075,7 +10117,9 @@
 	            }
 	          }
 	          if (type === 'component' && isPlainObject(definition)) {
-	            definition.name = id;
+	            if (!definition.name) {
+	              definition.name = id;
+	            }
 	            definition = Vue.extend(definition);
 	          }
 	          this.options[type + 's'][id] = definition;
@@ -10090,7 +10134,7 @@
 
 	  installGlobalAPI(Vue);
 
-	  Vue.version = '1.0.24';
+	  Vue.version = '1.0.26';
 
 	  // devtools global hook
 	  /* istanbul ignore next */
@@ -10284,6 +10328,9 @@
 	              "</span>" +
 	            "</div>",
 	  props: {
+	    /**
+	     * The following are options bespoke to the vue-datetime-picker plugin. 
+	     */
 	    model: {
 	      required: true,
 	      twoWay: true
@@ -10321,19 +10368,43 @@
 	    onChange: {
 	      required: false,
 	      default: null
-	    }
-	  },
-	  beforeCompile: function() {
-	    this.isChanging = false;
-	    this.control = null;
-	  },
-	  ready: function() {
-	    // console.debug("datetime-picker.ready");
-	    var options = {
-	      useCurrent: false,
-	      showClear: true,
-	      showClose: false,
-	      icons: {
+	    },
+	    
+	    /**
+	     * The following options are inherited from DateTimePicker (bootstrap plugin)
+	     */
+	    minDate: {
+	      required: false,
+	      default: false
+	    },
+	    maxDate: {
+	      required: false,
+	      default: false
+	    },
+	    useCurrent: {
+	      required: false,
+	      type: Boolean,
+	      default: true
+	    },
+	    collapse: {
+	      required: false,
+	      type: Boolean,
+	      default: true
+	    },
+	    disabledDates: {
+	      required: false,
+	      type: Array,
+	      default: false
+	    },
+	    enabledDates: {
+	      required: false,
+	      type: Array,
+	      default: false
+	    },
+	    icons: {
+	      required: false,
+	      type: Object,
+	      default: {
 	        time: 'fa fa-clock-o',
 	        date: 'fa fa-calendar',
 	        up: 'fa fa-chevron-up',
@@ -10344,7 +10415,148 @@
 	        clear: 'fa fa-trash',
 	        close: 'fa fa-times'
 	      }
+	    },
+	    useStrict: {
+	      required: false,
+	      type: Boolean,
+	      default: false
+	    },
+	    sideBySide: {
+	      required: false,
+	      type: Boolean,
+	      default: false
+	    },
+	    daysOfWeekDisabled: {
+	      required: false,
+	      type: Array,
+	      default: []
+	    },
+	    calendarWeeks: {
+	      required: false,
+	      type: Boolean,
+	      default: false
+	    },
+	    viewMode: {
+	      required: false,
+	      type: String,
+	      default: 'days'
+	    },
+	    toolbarPlacement: {
+	      required: false,
+	      type: String,
+	      default: 'default'
+	    },
+	    showTodayButton: {
+	      required: false,
+	      type: Boolean,
+	      default: false
+	    },
+	    showClear: {
+	      required: false,
+	      type: Boolean,
+	      default: false
+	    },
+	    showClose: {
+	      required: false,
+	      type: Boolean,
+	      default: false
+	    },
+	    widgetParent: {
+	      required: false,
+	      default: null
+	    },
+	    keepOpen: {
+	      required: false,
+	      type: Boolean,
+	      default: false
+	    },
+	    inline: {
+	      required: false,
+	      type: Boolean,
+	      default:false
+	    },
+	    keepInvalid: {
+	      required: false,
+	      type: Boolean,
+	      default: false
+	    },
+	    debug: {
+	      required: false,
+	      type: Boolean,
+	      default: false
+	    },
+	    ignoreReadonly: {
+	      required: false,
+	      type: Boolean,
+	      default: false
+	    },
+	    disabledTimeIntervals: {
+	      required: false,
+	      type: Boolean,
+	      default: false
+	    },
+	    allowInputToggle: {
+	      required: false,
+	      type: Boolean,
+	      default: false
+	    },
+	    focusOnShow: {
+	      required: false,
+	      type: Boolean,
+	      default: true
+	    },
+	    enabledHours: {
+	      required: false,
+	      type: Boolean,
+	      default: false
+	    },
+	    disabledHours: {
+	      required: false,
+	      type: Boolean,
+	      default: false
+	    },
+	    viewDate: {
+	      required: false,
+	      type: Boolean,
+	      default: false
+	    }
+	  },
+	  beforeCompile: function() {
+	    this.isChanging = false;
+	    this.control = null;
+	  },
+	  ready: function() {
+	    var options = {
+	      minDate: this.minDate,
+	      maxDate: this.maxDate,
+	      useCurrent: this.useCurrent,
+	      collapse: this.collapse,
+	      disabledDates: this.disabledDates,
+	      enabledDates: this.enabledDates,
+	      icons: this.icons,
+	      useStrict: this.useStrict,
+	      sideBySide: this.sideBySide,
+	      daysOfWeekDisabled: this.daysOfWeekDisabled,
+	      calendarWeeks: this.calendarWeeks,
+	      viewMode: this.viewMode,
+	      toolbarPlacement: this.toolbarPlacement,
+	      showTodayButton: this.showTodayButton,
+	      showClear: this.showClear,
+	      showClose: this.showClose,
+	      widgetParent: this.widgetParent,
+	      keepOpen: this.keepOpen,
+	      inline: this.inline,
+	      keepInvalid: this.keepInvalid,
+	      debug: this.debug,
+	      ignoreReadonly: this.ignoreReadonly,
+	      disabledTimeIntervals: this.disabledTimeIntervals,
+	      allowInputToggle: this.allowInputToggle,
+	      focusOnShow: this.focusOnShow,
+	      enabledHours: this.enabledHours,
+	      disabledHours: this.disabledHours,
+	      viewDate: this.viewDate
 	    };
+	    
 	    // set the locale
 	    var language = this.language;
 	    if (language === null || language === "") {
@@ -10465,7 +10677,7 @@
 /* 6 */
 /***/ function(module, exports) {
 
-	module.exports = "\n<div class=\"form-horizontal\">\n  <div class=\"form-group\">\n    <label for=\"picker1\" class=\"col-sm-3 control-label\">\n      A default datetime picker:\n    </label>\n    <div class=\"col-sm-5\">\n      <vue-datetime-picker v-ref:picker1 name=\"picker1\"\n                           :model.sync=\"result1\">\n      </vue-datetime-picker>\n    </div>\n    <div class=\"col-sm-4\">\n      <p class=\"form-control-static\">\n        Selected Datetime: <span class=\"vue-result1\">{{formatDatetime(result1)}}</span>\n      </p>\n    </div>\n  </div>\n  <div class=\"form-group\">\n    <label for=\"picker2\" class=\"col-sm-3 control-label\">\n      A datetime picker with customized datetime format:\n    </label>\n    <div class=\"col-sm-5\">\n      <vue-datetime-picker v-ref:picker2 name=\"picker2\"\n                           :model.sync=\"result2\"\n                           type=\"datetime\"\n                           language=\"en-US\"\n                           datetime-format=\"LLL\">\n      </vue-datetime-picker>\n    </div>\n    <div class=\"col-sm-4\">\n      <p class=\"form-control-static\">\n        Selected Datetime: <span class=\"vue-result2\">{{formatDatetime(result2)}}</span>\n      </p>\n    </div>\n  </div>\n  <div class=\"form-group\">\n    <label for=\"picker3\" class=\"col-sm-3 control-label\">\n      A date picker with customized date format:\n    </label>\n    <div class=\"col-sm-5\">\n      <vue-datetime-picker v-ref:picker3 name=\"picker3\"\n                           :model.sync=\"result3\"\n                           type=\"date\"\n                           language=\"en\"\n                           date-format=\"L\">\n      </vue-datetime-picker>\n    </div>\n    <div class=\"col-sm-4\">\n      <p class=\"form-control-static\">\n        Selected Date: <span class=\"vue-result3\">{{formatDate(result3)}}</span>\n      </p>\n    </div>\n  </div>\n  <div class=\"form-group\">\n    <label for=\"picker4\" class=\"col-sm-3 control-label\">\n      A time picker with customized time format:\n    </label>\n    <div class=\"col-sm-5\">\n      <vue-datetime-picker v-ref:picker4 name=\"picker4\"\n                           :model.sync=\"result4\"\n                           type=\"time\"\n                           language=\"zh-CN\"\n                           time-format=\"LT\">\n      </vue-datetime-picker>\n    </div>\n    <div class=\"col-sm-4\">\n      <p class=\"form-control-static\">\n        Selected Time: <span class=\"vue-result4\">{{formatTime(result4)}}</span>\n      </p>\n    </div>\n  </div>\n  <div class=\"form-group\">\n    <p class=\"form-control-static col-sm-12\">\n      Demonstration of the range of datetime. Note how the minimum/maximum\n      selectable datetime of the start/end datetime picker was changed\n      according to the selection of another picker.\n    </p>\n  </div>\n  <div class=\"form-group\">\n    <label for=\"start-picker\" class=\"col-sm-3 control-label\">\n      Start Datetime:\n    </label>\n    <div class=\"col-sm-3\">\n      <vue-datetime-picker v-ref:start-picker name=\"start-picker\"\n                           :model.sync=\"startDatetime\"\n                           :on-change=\"onStartDatetimeChanged\">\n      </vue-datetime-picker>\n    </div>\n    <label for=\"end-picker\" class=\"col-sm-3 control-label\">\n      End Datetime:\n    </label>\n    <div class=\"col-sm-3\">\n      <vue-datetime-picker v-ref:end-picker name=\"end-picker\"\n                           :model.sync=\"endDatetime\"\n                           :on-change=\"onEndDatetimeChanged\">\n      </vue-datetime-picker>\n    </div>\n  </div>\n</div>\n"
+	module.exports = "\n<div class=\"form-horizontal\">\n  <div class=\"form-group\">\n    <label for=\"picker1\" class=\"col-sm-3 control-label\">\n      A default datetime picker:\n    </label>\n    <div class=\"col-sm-5\">\n      <vue-datetime-picker v-ref:picker1 name=\"picker1\"\n                           :model.sync=\"result1\"\n                           :debug=\"true\">\n      </vue-datetime-picker>\n    </div>\n    <div class=\"col-sm-4\">\n      <p class=\"form-control-static\">\n        Selected Datetime: <span class=\"vue-result1\">{{formatDatetime(result1)}}</span>\n      </p>\n    </div>\n  </div>\n  <div class=\"form-group\">\n    <label for=\"picker2\" class=\"col-sm-3 control-label\">\n      A datetime picker with customized datetime format:\n    </label>\n    <div class=\"col-sm-5\">\n      <vue-datetime-picker v-ref:picker2 name=\"picker2\"\n                           :model.sync=\"result2\"\n                           type=\"datetime\"\n                           language=\"en-US\"\n                           datetime-format=\"LLL\">\n      </vue-datetime-picker>\n    </div>\n    <div class=\"col-sm-4\">\n      <p class=\"form-control-static\">\n        Selected Datetime: <span class=\"vue-result2\">{{formatDatetime(result2)}}</span>\n      </p>\n    </div>\n  </div>\n  <div class=\"form-group\">\n    <label for=\"picker3\" class=\"col-sm-3 control-label\">\n      A date picker with customized date format:\n    </label>\n    <div class=\"col-sm-5\">\n      <vue-datetime-picker v-ref:picker3 name=\"picker3\"\n                           :model.sync=\"result3\"\n                           type=\"date\"\n                           language=\"en\"\n                           date-format=\"L\">\n      </vue-datetime-picker>\n    </div>\n    <div class=\"col-sm-4\">\n      <p class=\"form-control-static\">\n        Selected Date: <span class=\"vue-result3\">{{formatDate(result3)}}</span>\n      </p>\n    </div>\n  </div>\n  <div class=\"form-group\">\n    <label for=\"picker4\" class=\"col-sm-3 control-label\">\n      A time picker with customized time format:\n    </label>\n    <div class=\"col-sm-5\">\n      <vue-datetime-picker v-ref:picker4 name=\"picker4\"\n                           :model.sync=\"result4\"\n                           type=\"time\"\n                           language=\"zh-CN\"\n                           time-format=\"LT\">\n      </vue-datetime-picker>\n    </div>\n    <div class=\"col-sm-4\">\n      <p class=\"form-control-static\">\n        Selected Time: <span class=\"vue-result4\">{{formatTime(result4)}}</span>\n      </p>\n    </div>\n  </div>\n  <div class=\"form-group\">\n    <p class=\"form-control-static col-sm-12\">\n      Demonstration of the range of datetime. Note how the minimum/maximum\n      selectable datetime of the start/end datetime picker was changed\n      according to the selection of another picker.\n    </p>\n  </div>\n  <div class=\"form-group\">\n    <label for=\"start-picker\" class=\"col-sm-3 control-label\">\n      Start Datetime:\n    </label>\n    <div class=\"col-sm-3\">\n      <vue-datetime-picker v-ref:start-picker name=\"start-picker\"\n                           :model.sync=\"startDatetime\"\n                           :on-change=\"onStartDatetimeChanged\">\n      </vue-datetime-picker>\n    </div>\n    <label for=\"end-picker\" class=\"col-sm-3 control-label\">\n      End Datetime:\n    </label>\n    <div class=\"col-sm-3\">\n      <vue-datetime-picker v-ref:end-picker name=\"end-picker\"\n                           :model.sync=\"endDatetime\"\n                           :on-change=\"onEndDatetimeChanged\">\n      </vue-datetime-picker>\n    </div>\n  </div>\n</div>\n"
 
 /***/ }
 /******/ ]);
