@@ -199,16 +199,18 @@
 	    icons: {
 	      required: false,
 	      type: Object,
-	      default: {
-	        time: 'fa fa-clock-o',
-	        date: 'fa fa-calendar',
-	        up: 'fa fa-chevron-up',
-	        down: 'fa fa-chevron-down',
-	        previous: 'fa fa-chevron-left',
-	        next: 'fa fa-chevron-right',
-	        today: 'fa fa-dot-circle-o',
-	        clear: 'fa fa-trash',
-	        close: 'fa fa-times'
+	      default: function() {
+	        return {
+	          time: 'fa fa-clock-o',
+	          date: 'fa fa-calendar',
+	          up: 'fa fa-chevron-up',
+	          down: 'fa fa-chevron-down',
+	          previous: 'fa fa-chevron-left',
+	          next: 'fa fa-chevron-right',
+	          today: 'fa fa-dot-circle-o',
+	          clear: 'fa fa-trash',
+	          close: 'fa fa-times'
+	        };
 	      }
 	    },
 	    useStrict: {
@@ -224,7 +226,9 @@
 	    daysOfWeekDisabled: {
 	      required: false,
 	      type: Array,
-	      default: []
+	      default: function() {
+	        return [];
+	      }
 	    },
 	    calendarWeeks: {
 	      required: false,
