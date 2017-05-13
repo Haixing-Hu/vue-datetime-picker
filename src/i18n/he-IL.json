@@ -1,0 +1,29 @@
+{
+  "datetime_picker": {
+    "today": "גש להיום",
+    "clear": "נקה בחירה",
+    "close": "סגור",
+    "selectMonth": "בחר חודש",
+    "prevMonth": "חודש קודם",
+    "nextMonth": "חודש הבא",
+    "selectYear": "בחר שנה",
+    "prevYear": "שנה קודמת",
+    "nextYear": "שנה הבאה",
+    "selectDecade": "בחר עשור",
+    "prevDecade": "עשור קודם",
+    "nextDecade": "עשור הבא",
+    "prevCentury": "מאה קודמת",
+    "nextCentury": "מאה הבאה",
+    "pickHour": "בחר שעה",
+    "incrementHour": "הגדל שעה",
+    "decrementHour": "החסר שעה",
+    "pickMinute": "בחר דקה",
+    "incrementMinute": "הגדל דקה",
+    "decrementMinute": "החסר דקה",
+    "pickSecond": "בחר שניה",
+    "incrementSecond": "הגדל שניה",
+    "decrementSecond": "החסר שניה",
+    "togglePeriod": "החלפת מצב תקופה",
+    "selectTime": "בחר זמן"
+  }
+}
